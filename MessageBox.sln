@@ -7,11 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageBox.Api", "source\Me
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{62B60872-4BF2-4748-8FD9-24EEC2F5BB2A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{5C4B575E-B2F1-4C46-8C7B-C31C26BAB67C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageBox.Data", "source\MessageBox.Data\MessageBox.Data.csproj", "{6DFD4DD6-42C0-4080-A1C0-D33642A9A1B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBox.Data", "source\MessageBox.Data\MessageBox.Data.csproj", "{6DFD4DD6-42C0-4080-A1C0-D33642A9A1B9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBox.Core", "source\MessageBox.Core\MessageBox.Core.csproj", "{6CD3E033-9C36-447E-8086-27AFEBFC6019}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageBox.Core", "source\MessageBox.Core\MessageBox.Core.csproj", "{6CD3E033-9C36-447E-8086-27AFEBFC6019}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

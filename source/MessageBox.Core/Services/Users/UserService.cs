@@ -8,38 +8,38 @@ namespace MessageBox.Core.Services.Users
     public class UserService : IUserService
     {
         #region Fields
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<NewUserRequest> _userRepository;
         #endregion
 
         #region Ctor
-        public UserService(IRepository<User> userRepository)
+        public UserService(IRepository<NewUserRequest> userRepository)
         {
             _userRepository = userRepository;
         }
         #endregion
 
         #region Methods
-        public async Task<int> DeleteUserAsync(User user)
+        public async Task<int> DeleteUserAsync(NewUserRequest user)
         {
             return await _userRepository.DeleteAsync(user);
         }
 
-        public async Task<IList<User>> GetAllUsersAsync()
+        public async Task<IList<NewUserRequest>> GetAllUsersAsync()
         {
             return await _userRepository.GetAllAsync();
         }
 
-        public async Task<User> GetUserByIdAsync(int userId)
+        public async Task<NewUserRequest> GetUserByIdAsync(int userId)
         {
             return await _userRepository.GetByIdAsync(userId);
         }
 
-        public async Task<int> InsertUserAsync(User user)
+        public async Task<int> InsertUserAsync(NewUserRequest user)
         {
             return await _userRepository.InsertAsync(user);
         }
 
-        public async Task<int> UpdateUserAsync(User user)
+        public async Task<int> UpdateUserAsync(NewUserRequest user)
         {
             return await _userRepository.UpdateAsync(user);
         }

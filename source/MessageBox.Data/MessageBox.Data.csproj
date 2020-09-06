@@ -8,4 +8,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Logs\" />
+    <Folder Include="Models\Messages\" />
+  </ItemGroup>
+
 </Project>

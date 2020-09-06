@@ -10,31 +10,31 @@ namespace MessageBox.Core.Services.Users
         /// Delete user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> DeleteUserAsync(User user);
+        Task<int> DeleteUserAsync(NewUserRequest user);
 
         /// <summary>
         /// Gets all categories
         /// </summary>
         /// <returns>Categories</returns>
-        Task<IList<User>> GetAllUsersAsync();
+        Task<IList<NewUserRequest>> GetAllUsersAsync();
 
         /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="userId">User identifier</param>
         /// <returns>User</returns>
-        Task<User> GetUserByIdAsync(int userId);
+        Task<NewUserRequest> GetUserByIdAsync(int userId);
 
         /// <summary>
         /// Inserts user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> InsertUserAsync(User user);
+        Task<int> InsertUserAsync(NewUserRequest user);
 
         /// <summary>
         /// Updates the user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> UpdateUserAsync(User user);
+        Task<int> UpdateUserAsync(NewUserRequest user);
     }
 }

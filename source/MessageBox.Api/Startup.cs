@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using MessageBox.Core.Infrastructure;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace MessageBox
 {
@@ -32,8 +35,26 @@ namespace MessageBox
         {
             services.AddControllersWithViews();
 
+            //Add Db Connection
             string connectionString = Configuration.GetConnectionString("Mysql-Dev");
             services.AddDbContext(connectionString);
+
+            //Add Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "MessageBox API",
+                    Description = "MessageBox is an offline messaging API developed for Armut interview.",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Özenç Çelik",
+                        Email = "ozenc.celik@hotmail.com",
+                        Url = new Uri("https://www.linkedin.com/in/%C3%B6zen%C3%A7-%C3%A7elik/"),
+                    }
+                });
+            });
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
@@ -61,14 +82,14 @@ namespace MessageBox
 
             app.UseAuthorization();
 
-            app.UseCookiePolicy();
-            app.UseSession();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MessageBox API V1"));
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Category}/{action=Index}/{id?}");
+                    pattern: "{controller=Index}/{action=Index}/{id?}");
             });
         }
     }
