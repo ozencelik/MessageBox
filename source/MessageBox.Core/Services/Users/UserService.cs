@@ -12,7 +12,7 @@ namespace MessageBox.Core.Services.Users
         #endregion
 
         #region Ctor
-        public MessageService(IRepository<User> userRepository)
+        public UserService(IRepository<User> userRepository)
         {
             _userRepository = userRepository;
         }
