@@ -8,6 +8,7 @@ using MessageBox.Core.Services.Users;
 using MessageBox.Core.Services.Messages;
 using LogBox.Core.Services.Logs;
 using ActivityLogBox.Core.Services.Logs;
+using MessageBox.Data.Repositories;
 
 namespace MessageBox.Core.Infrastructure
 {
@@ -28,6 +29,9 @@ namespace MessageBox.Core.Infrastructure
         private void RegisterCommonDependencies(ContainerBuilder builder)
         {
             builder.RegisterGeneric(typeof(MySqlRepository<>)).As(typeof(IRepository<>))
+                .InstancePerLifetimeScope();
+
+            builder.RegisterGeneric(typeof(MongoRepository<>)).As(typeof(IRepository<>))
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<UserService>().As<IUserService>()

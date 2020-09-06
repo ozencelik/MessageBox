@@ -30,6 +30,9 @@ namespace MessageBox.Core.Infrastructure
             dbContext.User.Add(new User { Name = "Özenç" });
             dbContext.User.Add(new User { Name = "Betül" });
 
+            dbContext.User.Add(new User { Name = "Özenç" });
+            dbContext.User.Add(new User { Name = "Betül" });
+
             dbContext.SaveChanges();
         }
         #endregion

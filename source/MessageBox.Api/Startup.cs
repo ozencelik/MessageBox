@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using MessageBox.Core.Infrastructure;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace MessageBox
 {
@@ -38,7 +41,29 @@ namespace MessageBox
 
             //Add Mongo
             connectionString = Configuration.GetConnectionString("Mongo-Dev");
-            services.AddMongoDbContext(connectionString, "MessageBox");
+            services.AddMongoDbContext(connectionString, "bi5cg7nv6j66scj");
+
+            //Add Swagger into MessageBox API
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Message Box API",
+                    Description = "MessageBox is an offline messaging API developed for Armut interview.",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Özenç Çelik",
+                        Email = "ozenc.celik@hotmail.com",
+                        Url = new Uri("https://www.linkedin.com/in/özenç-çelik"),
+                    }
+                });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
         }
 
         public void ConfigureContainer(ContainerBuilder builder)

@@ -1,5 +1,6 @@
 ﻿using MessageBox.Data;
 using MessageBox.Data.Entities;
+using MessageBox.Data.Repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
