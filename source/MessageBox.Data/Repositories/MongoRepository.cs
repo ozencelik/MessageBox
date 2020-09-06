@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MessageBox.Data
+namespace MessageBox.Data.Repositories
 {
-    public class EfCoreRepository<T> : IRepository<T> where T : BaseEntity
+    public class MongoRepository<T> : IRepository<T> where T : BaseMongoEntity
     {
         #region Fields
-        private readonly AppDbContext _dbContext;
+        private readonly MongoDbContext _dbContext;
         #endregion
 
         #region Ctor
-        public EfCoreRepository(AppDbContext dbContext)
+        public MongoRepository(MongoDbContext dbContext)
         {
             _dbContext = dbContext;
         }

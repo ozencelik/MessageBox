@@ -3,7 +3,7 @@ using System;
 
 namespace MessageBox.Data.Entities
 {
-    public partial class Message : BaseEntity
+    public partial class Message : BaseMySqlEntity
     {
         /// <summary>
         /// A message

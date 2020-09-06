@@ -3,7 +3,7 @@ using MessageBox.Data.Enums;
 
 namespace MessageBox.Data.Entities
 {
-    public partial class Log : BaseEntity
+    public partial class Log : BaseMySqlEntity
     {
         /// <summary>
         /// LogType

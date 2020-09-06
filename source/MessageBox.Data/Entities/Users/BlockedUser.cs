@@ -2,7 +2,7 @@
 
 namespace MessageBox.Data.Entities
 {
-    public partial class BlockedUser : BaseEntity
+    public partial class BlockedUser : BaseMySqlEntity
     {
         /// <summary>
         /// BlockingUserId as foreign key.

@@ -12,8 +12,8 @@ namespace MessageBox.Core.Infrastructure
         #region Methods
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            using (var dbContext = new AppDbContext(
-                serviceProvider.GetRequiredService<DbContextOptions<AppDbContext>>()))
+            using (var dbContext = new MySqlDbContext(
+                serviceProvider.GetRequiredService<DbContextOptions<MySqlDbContext>>()))
             {
                 //Look for any User.
                 if (dbContext.User.Any())
@@ -25,7 +25,7 @@ namespace MessageBox.Core.Infrastructure
                 PopulateTestData(dbContext);
             }
         }
-        public static void PopulateTestData(AppDbContext dbContext)
+        public static void PopulateTestData(MySqlDbContext dbContext)
         {
             dbContext.User.Add(new User { Name = "Özenç" });
             dbContext.User.Add(new User { Name = "Betül" });

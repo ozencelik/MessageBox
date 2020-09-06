@@ -5,11 +5,6 @@ namespace MessageBox.Data.BaseEntities
     public abstract class BaseEntity
     {
         /// <summary>
-        /// Used as primary key for all entities
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
         /// Determine the entity is active
         /// </summary>
         public bool Active { get; set; }

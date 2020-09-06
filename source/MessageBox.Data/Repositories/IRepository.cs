@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MessageBox.Data
+namespace MessageBox.Data.Repositories
 {
     /// <summary>
     /// Represents an entity repository

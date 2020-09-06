@@ -27,7 +27,7 @@ namespace MessageBox.Core.Infrastructure
         #region Methods
         private void RegisterCommonDependencies(ContainerBuilder builder)
         {
-            builder.RegisterGeneric(typeof(EfCoreRepository<>)).As(typeof(IRepository<>))
+            builder.RegisterGeneric(typeof(MySqlRepository<>)).As(typeof(IRepository<>))
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<UserService>().As<IUserService>()

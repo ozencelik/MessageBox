@@ -32,8 +32,13 @@ namespace MessageBox
         {
             services.AddControllersWithViews();
 
+            //Add MySql
             string connectionString = Configuration.GetConnectionString("Mysql-Dev");
-            services.AddDbContext(connectionString);
+            services.AddMySqlDbContext(connectionString);
+
+            //Add Mongo
+            connectionString = Configuration.GetConnectionString("Mongo-Dev");
+            services.AddMongoDbContext(connectionString, "MessageBox");
         }
 
         public void ConfigureContainer(ContainerBuilder builder)

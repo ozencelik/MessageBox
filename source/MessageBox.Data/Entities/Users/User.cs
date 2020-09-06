@@ -2,7 +2,7 @@
 
 namespace MessageBox.Data.Entities
 {
-    public partial class User : BaseEntity
+    public partial class User : BaseMySqlEntity
     {
         /// <summary>
         /// User name

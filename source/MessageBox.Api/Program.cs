@@ -25,7 +25,7 @@ namespace MessageBox
 
                 try
                 {
-                    var context = services.GetRequiredService<AppDbContext>();
+                    var context = services.GetRequiredService<MySqlDbContext>();
                     context.Database.EnsureCreated();
                     Seeder.Initialize(services);
                 }

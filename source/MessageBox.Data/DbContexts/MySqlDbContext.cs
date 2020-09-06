@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MessageBox.Data
 {
-    public class AppDbContext : DbContext
+    public class MySqlDbContext : DbContext
     {
         #region Fields
         public DbSet<User> User { get; set; }
@@ -21,7 +21,7 @@ namespace MessageBox.Data
         #endregion
 
         #region Ctor
-        public AppDbContext(DbContextOptions<AppDbContext> options)
+        public MySqlDbContext(DbContextOptions<MySqlDbContext> options)
             : base(options)
         {
         }
