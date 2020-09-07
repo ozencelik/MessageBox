@@ -10,31 +10,45 @@ namespace MessageBox.Core.Services.Users
         /// Delete user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> DeleteUserAsync(NewUserRequest user);
+        Task<int> DeleteUserAsync(User user);
 
         /// <summary>
         /// Gets all categories
         /// </summary>
         /// <returns>Categories</returns>
-        Task<IList<NewUserRequest>> GetAllUsersAsync();
+        Task<IList<User>> GetAllUsersAsync();
+
+        /// <summary>
+        /// Gets a user
+        /// </summary>
+        /// <param name="email">Email</param>
+        /// <returns>User</returns>
+        Task<User> GetUserByEmailAsync(string email);
 
         /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="userId">User identifier</param>
         /// <returns>User</returns>
-        Task<NewUserRequest> GetUserByIdAsync(int userId);
+        Task<User> GetUserByIdAsync(int userId);
+
+        /// <summary>
+        /// Gets a user
+        /// </summary>
+        /// <param name="userName">Username</param>
+        /// <returns>User</returns>
+        Task<User> GetUserByUsernameAsync(string userName);
 
         /// <summary>
         /// Inserts user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> InsertUserAsync(NewUserRequest user);
+        Task<int> InsertUserAsync(User user);
 
         /// <summary>
         /// Updates the user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> UpdateUserAsync(NewUserRequest user);
+        Task<int> UpdateUserAsync(User user);
     }
 }

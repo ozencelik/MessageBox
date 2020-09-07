@@ -27,8 +27,8 @@ namespace MessageBox.Core.Infrastructure
         }
         public static void PopulateTestData(AppDbContext dbContext)
         {
-            dbContext.User.Add(new NewUserRequest { Name = "Özenç" });
-            dbContext.User.Add(new NewUserRequest { Name = "Betül" });
+            dbContext.User.Add(new User { Name = "Özenç" });
+            dbContext.User.Add(new User { Name = "Betül" });
 
             dbContext.SaveChanges();
         }
