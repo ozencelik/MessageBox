@@ -1,8 +1,5 @@
 ﻿using Autofac;
 using Module = Autofac.Module;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using MessageBox.Data;
 using MessageBox.Core.Services.Users;
 using MessageBox.Core.Services.Messages;
@@ -43,7 +40,7 @@ namespace MessageBox.Core.Infrastructure
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ActivityLogService>().As<IActivityLogService>()
-                .InstancePerLifetimeScope();
+                .InstancePerLifetimeScope();           
         }
 
         private void RegisterDevelopmentOnlyDependencies(ContainerBuilder builder)

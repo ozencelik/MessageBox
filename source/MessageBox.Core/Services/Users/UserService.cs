@@ -105,10 +105,10 @@ namespace MessageBox.Core.Services.Users
             if (string.IsNullOrWhiteSpace(password))
                 throw new ArgumentNullException("Password is required");
 
-            if (await GetUserByUsernameAsync(user.Username) is null)
+            if (await GetUserByUsernameAsync(user.Username) != null)
                 throw new ArgumentNullException("Username \"" + user.Username + "\" is already taken");
 
-            if (await GetUserByEmailAsync(user.Email) is null)
+            if (await GetUserByEmailAsync(user.Email) != null)
                 throw new ArgumentNullException("Email \"" + user.Email + "\" is already taken");
 
             byte[] passwordHash, passwordSalt;
@@ -117,7 +117,7 @@ namespace MessageBox.Core.Services.Users
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            UpdateUserAsync(user);
+            await InsertUserAsync(user);
 
             return user;
         }

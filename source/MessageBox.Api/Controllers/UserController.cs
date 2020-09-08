@@ -129,7 +129,7 @@ namespace MessageBox.Api.Controllers
                 try
                 {
                     // create user
-                    _userService.RegisterUserAsync(user, model.Password);
+                    await _userService.RegisterUserAsync(user, model.Password);
                 }
                 catch (Exception ex)
                 {
@@ -163,7 +163,7 @@ namespace MessageBox.Api.Controllers
                 user.Id = id;
 
                 // update user 
-                _userService.UpdateUserAsync(user, model.Password);
+                await _userService.UpdateUserAsync(user, model.Password);
                 return Ok("User updated ✔");
             }
             catch (Exception ex)

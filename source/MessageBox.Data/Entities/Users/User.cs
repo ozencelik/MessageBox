@@ -20,11 +20,6 @@ namespace MessageBox.Data.Entities
         public string Email { get; set; }
 
         /// <summary>
-        /// Password
-        /// </summary>
-        public string Password { get; set; }
-
-        /// <summary>
         /// PasswordHash
         /// </summary>
         public byte[] PasswordHash { get; set; }

@@ -35,7 +35,6 @@ namespace MessageBox.Data
             modelBuilder.Entity<User>().Property(e => e.Name);
             modelBuilder.Entity<User>().Property(e => e.Username);
             modelBuilder.Entity<User>().Property(e => e.Email);
-            modelBuilder.Entity<User>().Property(e => e.Password);
             //modelBuilder.Entity<User>().HasOne(e => e.ParentCategory);
             modelBuilder.Entity<User>().Property(e => e.Active);
             modelBuilder.Entity<User>().Property(e => e.Deleted);
