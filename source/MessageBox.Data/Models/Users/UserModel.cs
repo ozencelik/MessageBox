@@ -1,9 +1,6 @@
-﻿using MessageBox.Data.BaseEntities;
-using System;
-
-namespace MessageBox.Data.Models
+﻿namespace MessageBox.Data.Models
 {
-    public partial class UserResponse
+    public partial class UserModel
     {
         /// <summary>
         /// User name

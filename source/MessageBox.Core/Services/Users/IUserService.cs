@@ -40,15 +40,41 @@ namespace MessageBox.Core.Services.Users
         Task<User> GetUserByUsernameAsync(string userName);
 
         /// <summary>
+        /// Gets a user
+        /// </summary>
+        /// <param name="email">Email</param>
+        /// <param name="password">Password</param>
+        /// <returns>User</returns>
+        Task<User> LoginUserWithEmailAsync(string email, string password);
+
+        /// <summary>
+        /// Gets a user
+        /// </summary>
+        /// <param name="username">Username</param>
+        /// <param name="password">Password</param>
+        /// <returns>User</returns>
+        Task<User> LoginUserWithUsernameAsync(string username, string password);
+
+        /// <summary>
         /// Inserts user
         /// </summary>
         /// <param name="user">User</param>
         Task<int> InsertUserAsync(User user);
 
         /// <summary>
+        /// Register a user
+        /// </summary>
+        /// <param name="user">User</param>
+        /// <param name="password">Password</param>
+        /// <returns>User</returns>
+        Task<User> RegisterUserAsync(User user, string password);
+
+        /// <summary>
         /// Updates the user
         /// </summary>
         /// <param name="user">User</param>
-        Task<int> UpdateUserAsync(User user);
+        /// <param name="password">Password</param>
+        /// <returns>User Id</returns>
+        Task<int> UpdateUserAsync(User user, string password = null);
     }
 }

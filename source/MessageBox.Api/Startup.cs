@@ -1,9 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Autofac;
-using MessageBox.Api.Settings;
+using MessageBox.Api.Configuration;
 using MessageBox.Core.Infrastructure;
+using MessageBox.Core.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -35,7 +36,9 @@ namespace MessageBox
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddCors();
+            services.AddControllers();
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //Add Db Connection
             string connectionString = Configuration.GetConnectionString("Mysql-Dev");
@@ -43,9 +46,9 @@ namespace MessageBox
 
             #region JWT
             //Add Jwt Token
-            var jwt = new JwtSetting();
-            jwt = Configuration.GetSection("JwtSetting").Get<JwtSetting>();
-            services.AddSingleton(jwt);
+            var settings = new AppSettings();
+            settings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            services.AddSingleton(settings);
 
             services.AddAuthentication(x =>
             {
@@ -56,10 +59,25 @@ namespace MessageBox
             .AddJwtBearer(x =>
             {
                 x.SaveToken = true;
+                x.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                        var userId = int.Parse(context.Principal.Identity.Name);
+                        var user = userService.GetUserByIdAsync(userId);
+                        if (user == null)
+                        {
+                            // return unauthorized if user no longer exists
+                            context.Fail("Unauthorized");
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwt.Secret)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(settings.Secret)),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     RequireExpirationTime = false,
@@ -133,6 +151,12 @@ namespace MessageBox
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseAuthorization();
             app.UseAuthentication();

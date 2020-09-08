@@ -1,8 +1,6 @@
-﻿using MessageBox.Data.BaseEntities;
-
-namespace MessageBox.Data.Entities
+﻿namespace MessageBox.Data.Models
 {
-    public partial class User : BaseEntity
+    public partial class UpdateModel
     {
         /// <summary>
         /// User name
@@ -25,13 +23,13 @@ namespace MessageBox.Data.Entities
         public string Password { get; set; }
 
         /// <summary>
-        /// PasswordHash
+        /// Determine the entity is active
         /// </summary>
-        public byte[] PasswordHash { get; set; }
+        public bool Active { get; set; }
 
         /// <summary>
-        /// PasswordSalt
+        /// Determine the entity is deleted
         /// </summary>
-        public byte[] PasswordSalt { get; set; }
+        public bool Deleted { get; set; }
     }
 }
