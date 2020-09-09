@@ -49,7 +49,7 @@ namespace MessageBox.Api.Controllers
 
             var user = await _userService.GetUserByIdAsync(userId);
 
-            var model = _mapper.Map<LogModel>(user);
+            var model = _mapper.Map<UserModel>(user);
 
             return Ok(model);
         }
@@ -59,7 +59,7 @@ namespace MessageBox.Api.Controllers
         {
             var users = await _userService.GetAllUsersAsync();
 
-            var model = _mapper.Map<IList<LogModel>>(users);
+            var model = _mapper.Map<IList<UserModel>>(users);
 
             return Ok(model);
         }

@@ -25,11 +25,11 @@
         /// <summary>
         /// Determine the entity is active
         /// </summary>
-        public bool Active { get; set; }
+        public bool Active { get; set; } = true;
 
         /// <summary>
         /// Determine the entity is deleted
         /// </summary>
-        public bool Deleted { get; set; }
+        public bool Deleted { get; set; } = false;
     }
 }

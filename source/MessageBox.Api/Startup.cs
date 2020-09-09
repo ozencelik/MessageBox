@@ -66,7 +66,7 @@ namespace MessageBox
                 x.SaveToken = true;
                 x.Events = new JwtBearerEvents
                 {
-                    OnTokenValidated = context =>
+                    OnTokenValidated = async context =>
                     {
                         //temporary
 
@@ -78,13 +78,12 @@ namespace MessageBox
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
                         //logService.InsertLogAsync(new Log() { LogType = LogType.Debug, UserId = 0, Title = "Jwt Hatası-userId", Message = $"{userId}" });
-                        var user = userService.GetUserByIdAsync(userId);
+                        var user = await userService.GetUserByIdAsync(userId);
                         if (user == null)
                         {
                             // return unauthorized if user no longer exists
                             context.Fail("Unauthorized");
                         }
-                        return Task.CompletedTask;
                     }
                 };
                 x.TokenValidationParameters = new TokenValidationParameters

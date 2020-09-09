@@ -1,6 +1,6 @@
 ﻿namespace MessageBox.Data.Models
 {
-    public partial class LogModel
+    public partial class UserModel
     {
         /// <summary>
         /// User name
