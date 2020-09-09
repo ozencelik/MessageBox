@@ -12,6 +12,7 @@ namespace MessageBox.Core.Infrastructure
         #region Methods
         public static void Initialize(IServiceProvider serviceProvider)
         {
+            /*
             using (var dbContext = new AppDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<AppDbContext>>()))
             {
@@ -24,13 +25,15 @@ namespace MessageBox.Core.Infrastructure
 
                 PopulateTestData(dbContext);
             }
+            */
         }
         public static void PopulateTestData(AppDbContext dbContext)
         {
+            /*
             dbContext.User.Add(new User { Name = "Özenç" });
             dbContext.User.Add(new User { Name = "Betül" });
 
-            dbContext.SaveChanges();
+            dbContext.SaveChanges();*/
         }
         #endregion
     }

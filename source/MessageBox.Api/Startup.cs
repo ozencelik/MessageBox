@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -26,6 +26,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
+using LogBox.Core.Services.Logs;
+using MessageBox.Data.Entities;
+using MessageBox.Data.Enums;
 
 namespace MessageBox
 {
@@ -53,16 +56,16 @@ namespace MessageBox
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            // Configure Options Patternvar 
+            var settings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+
             //Add Db Connection
             string connectionString = Configuration.GetConnectionString("Mysql-Dev");
             services.AddDbContext(connectionString);
 
             #region JWT
             //Add Jwt Token
-            var settings = new AppSettings();
-            settings = Configuration.GetSection("AppSettings").Get<AppSettings>();
-            services.AddSingleton(settings);
-
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -76,8 +79,16 @@ namespace MessageBox
                 {
                     OnTokenValidated = context =>
                     {
+                        //temporary
+
+                        var logService = context.HttpContext.RequestServices.GetRequiredService<ILogService>();
+
+                        //temporary
+
+
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
+                        logService.InsertLogAsync(new Log() { LogType = LogType.Debug, UserId = 0, Title = "Jwt HatasÄ±-userId", Message = $"{userId}" });
                         var user = userService.GetUserByIdAsync(userId);
                         if (user == null)
                         {
@@ -110,7 +121,7 @@ namespace MessageBox
                     Description = "MessageBox is an offline messaging API developed for Armut interview.",
                     Contact = new OpenApiContact
                     {
-                        Name = "Özenç Çelik",
+                        Name = "Ã–zenÃ§ Ã‡elik",
                         Email = "ozenc.celik@hotmail.com",
                         Url = new Uri("https://www.linkedin.com/in/%C3%B6zen%C3%A7-%C3%A7elik/"),
                     }
