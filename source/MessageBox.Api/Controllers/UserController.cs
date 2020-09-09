@@ -4,6 +4,7 @@ using MessageBox.Core.Infrastructure;
 using MessageBox.Core.Services.Users;
 using MessageBox.Data.Entities;
 using MessageBox.Data.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace MessageBox.Api.Controllers
 {
-    [Authorize]
+    [Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("[controller]")]
     public class UserController : Controller

@@ -8,7 +8,8 @@ namespace MessageBox.Core.Infrastructure
     public static class StartupSetup
     {
         #region Methods
-        public static void AddDbContext(this IServiceCollection services, string connectionString) =>
+        public static void AddDbContext(this IServiceCollection services, string connectionString)
+        {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(connectionString,
                 mySqlOptions =>
@@ -17,7 +18,12 @@ namespace MessageBox.Core.Infrastructure
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
                         errorNumbersToAdd: null);
-                }));
+                }),
+                ServiceLifetime.Transient);
+
+            //services.AddTransient<Func<AppDbContext>>(options => () => options.GetService<AppDbContext>());
+        }
+            
         #endregion
     }
 }

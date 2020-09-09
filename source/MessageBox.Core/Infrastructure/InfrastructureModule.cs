@@ -11,7 +11,7 @@ namespace MessageBox.Core.Infrastructure
     public class InfrastructureModule : Module
     {
         #region Fields
-        private bool _isDevelopment = false;
+        private readonly bool _isDevelopment = false;
         #endregion
 
         #region Ctor

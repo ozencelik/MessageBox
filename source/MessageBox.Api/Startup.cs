@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using AutoMapper;
 using MessageBox.Api.Configuration;
 using MessageBox.Core.Infrastructure;
 using MessageBox.Core.Services.Users;
@@ -13,23 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using AutoMapper;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System;
-using LogBox.Core.Services.Logs;
 using MessageBox.Data.Entities;
 using MessageBox.Data.Enums;
 using MessageBox.Core.Services.Logs;
+using MessageBox.Data;
 
 namespace MessageBox
 {
@@ -89,7 +77,7 @@ namespace MessageBox
 
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
-                        logService.InsertLogAsync(new Log() { LogType = LogType.Debug, UserId = 0, Title = "Jwt Hatası-userId", Message = $"{userId}" });
+                        //logService.InsertLogAsync(new Log() { LogType = LogType.Debug, UserId = 0, Title = "Jwt Hatası-userId", Message = $"{userId}" });
                         var user = userService.GetUserByIdAsync(userId);
                         if (user == null)
                         {
