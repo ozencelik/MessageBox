@@ -41,14 +41,14 @@ namespace MessageBox.Api.Controllers
 
         #region Methods
         [HttpGet(ApiRoutes.Users.Get)]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int userId)
         {
-            if (id <= 0)
+            if (userId <= 0)
                 return BadRequest("Id value must be greater than zero.");
 
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = await _userService.GetUserByIdAsync(userId);
 
-            var model = _mapper.Map<UserModel>(user);
+            var model = _mapper.Map<LogModel>(user);
 
             return Ok(model);
         }
@@ -58,7 +58,7 @@ namespace MessageBox.Api.Controllers
         {
             var users = await _userService.GetAllUsersAsync();
 
-            var model = _mapper.Map<IList<UserModel>>(users);
+            var model = _mapper.Map<IList<LogModel>>(users);
 
             return Ok(model);
         }
@@ -142,16 +142,16 @@ namespace MessageBox.Api.Controllers
         }
 
         [HttpPut(ApiRoutes.Users.Update)]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateModel model)
+        public async Task<IActionResult> Update(int userId, [FromBody] UpdateModel model)
         {
-            if (id <= 0)
+            if (userId <= 0)
                 return BadRequest("Id value must be greater than zero.");
             
             if (model is null)
                 return BadRequest("Model is required.");
 
             // check the user is exist
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = await _userService.GetUserByIdAsync(userId);
 
             if(user is null)
                 return NotFound("User not found.");
@@ -160,7 +160,7 @@ namespace MessageBox.Api.Controllers
             {
                 //map model to user entity
                 user = _mapper.Map<User>(model);
-                user.Id = id;
+                user.Id = userId;
 
                 // update user 
                 await _userService.UpdateUserAsync(user, model.Password);

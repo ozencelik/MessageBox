@@ -8,7 +8,7 @@ namespace MessageBox.Api.Configuration
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, UserModel>();
+            CreateMap<User, LogModel>();
 
             CreateMap<RegisterModel, User>();
             CreateMap<UpdateModel, User>();

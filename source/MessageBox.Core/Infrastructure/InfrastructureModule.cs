@@ -3,7 +3,7 @@ using Module = Autofac.Module;
 using MessageBox.Data;
 using MessageBox.Core.Services.Users;
 using MessageBox.Core.Services.Messages;
-using LogBox.Core.Services.Logs;
+using MessageBox.Core.Services.Logs;
 using ActivityLogBox.Core.Services.Logs;
 
 namespace MessageBox.Core.Infrastructure

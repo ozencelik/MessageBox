@@ -24,5 +24,12 @@
 
             public const string Update = Base + "/users/{userId}";
         }
+
+        public static class Logs
+        {
+            public const string Get = Base + "/logs/{logId}";
+
+            public const string GetAll = Base + "/logs";
+        }
     }
 }

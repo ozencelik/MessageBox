@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Logs\" />
     <Folder Include="Models\Messages\" />
   </ItemGroup>
 

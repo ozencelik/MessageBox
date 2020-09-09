@@ -29,6 +29,7 @@ using System;
 using LogBox.Core.Services.Logs;
 using MessageBox.Data.Entities;
 using MessageBox.Data.Enums;
+using MessageBox.Core.Services.Logs;
 
 namespace MessageBox
 {

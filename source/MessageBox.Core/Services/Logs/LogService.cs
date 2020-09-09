@@ -3,7 +3,7 @@ using MessageBox.Data.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LogBox.Core.Services.Logs
+namespace MessageBox.Core.Services.Logs
 {
     public class LogService : ILogService
     {

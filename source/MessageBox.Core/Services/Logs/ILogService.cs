@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LogBox.Core.Services.Logs
+namespace MessageBox.Core.Services.Logs
 {
     public interface ILogService
     {
