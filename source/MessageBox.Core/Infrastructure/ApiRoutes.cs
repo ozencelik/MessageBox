@@ -31,5 +31,12 @@
 
             public const string GetAll = Base + "/logs";
         }
+
+        public static class Messages
+        {
+            public const string Get = Base + "/messages/{messageId}";
+
+            public const string GetAll = Base + "/messages";
+        }
     }
 }

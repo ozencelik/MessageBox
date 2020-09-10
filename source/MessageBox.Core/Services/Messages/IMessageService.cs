@@ -13,10 +13,17 @@ namespace MessageBox.Core.Services.Messages
         Task<int> DeleteMessageAsync(Message message);
 
         /// <summary>
-        /// Gets all categories
+        /// Gets all messages
         /// </summary>
-        /// <returns>Categories</returns>
+        /// <returns>Messages</returns>
         Task<IList<Message>> GetAllMessagesAsync();
+
+        /// <summary>
+        /// Gets all messages by sender user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllMessagesBySenderUserIdAsync(int userId);
 
         /// <summary>
         /// Gets a message

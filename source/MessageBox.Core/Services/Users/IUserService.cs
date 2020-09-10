@@ -40,6 +40,13 @@ namespace MessageBox.Core.Services.Users
         Task<User> GetUserByUsernameAsync(string userName);
 
         /// <summary>
+        /// Gets a user name from id
+        /// </summary>
+        /// <param name="userId">User identifier</param>
+        /// <returns>User name</returns>
+        Task<string> GetUsernameByUserIdAsync(int userId);
+
+        /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="email">Email</param>

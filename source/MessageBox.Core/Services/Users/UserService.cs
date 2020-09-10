@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -49,6 +50,18 @@ namespace MessageBox.Core.Services.Users
         {
             return await _userRepository.Table
                 .Where(u => string.Equals(u.Username, userName))?.FirstOrDefaultAsync();
+        }
+
+        public async Task<string> GetUsernameByUserIdAsync(int userId)
+        {
+            var user = await _userRepository.Table
+                .Where(u => u.Id == userId && u.Active && !u.Deleted)?.FirstOrDefaultAsync();
+
+            if (user is null
+                || user is default(User))
+                return default;
+
+            return user.Username;
         }
 
         public async Task<User> LoginUserWithEmailAsync(string email, string password)

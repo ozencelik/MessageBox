@@ -6,6 +6,18 @@ namespace MessageBox.Data.Entities
     public partial class Message : BaseEntity
     {
         /// <summary>
+        /// SenderUserId is foreign key of the user
+        /// that sending the message to another user.
+        /// </summary>
+        public int SenderUserId { get; set; }
+
+        /// <summary>
+        /// ReceiverUserId is foreign key of the user
+        /// that receiving a message from another user.
+        /// </summary>
+        public int ReceiverUserId { get; set; }
+
+        /// <summary>
         /// A message
         /// </summary>
         public string Content { get; set; }

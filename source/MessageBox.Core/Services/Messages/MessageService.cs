@@ -1,6 +1,8 @@
 ﻿using MessageBox.Data;
 using MessageBox.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MessageBox.Core.Services.Messages
@@ -27,6 +29,12 @@ namespace MessageBox.Core.Services.Messages
         public async Task<IList<Message>> GetAllMessagesAsync()
         {
             return await _messageRepository.GetAllAsync();
+        }
+
+        public async Task<IList<Message>> GetAllMessagesBySenderUserIdAsync(int userId)
+        {
+            return await _messageRepository.Table
+                .Where(m => m.SenderUserId == userId || m.ReceiverUserId == userId)?.ToListAsync();
         }
 
         public async Task<Message> GetMessageByIdAsync(int messageId)
