@@ -37,6 +37,23 @@
             public const string Get = Base + "/messages/{messageId}";
 
             public const string GetAll = Base + "/messages";
+
+            public const string Send = Base + "/messages";
+        }
+
+        public static class BlockedUsers
+        {
+            public const string Create = Base + "/blockedusers";
+
+            public const string Delete = Base + "/blockedusers/{userId}";
+
+            public const string Get = Base + "/blockedusers/{userId}";
+
+            public const string GetAllBlockingUser = Base + "/blockedusers/blockingusers";
+
+            public const string GetAllBlockedUser = Base + "/blockedusers";
+
+            public const string Block = Base + "/blockedusers/block";
         }
     }
 }

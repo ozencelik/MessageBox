@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Internal;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using MessageBox.Api.Configuration;
 using MessageBox.Core.Infrastructure;
 using MessageBox.Core.Services.Messages;
 using MessageBox.Core.Services.Users;
@@ -10,14 +7,11 @@ using MessageBox.Data.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace MessageBox.Api.Controllers
@@ -31,16 +25,19 @@ namespace MessageBox.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IMessageService _messageService;
         private readonly IUserService _userService;
+        private readonly IBlockedUserService _blockedUserService;
         #endregion
 
         #region Ctor
         public MessageController(IMapper mapper,
             IMessageService messageService,
-            IUserService userService)
+            IUserService userService,
+            IBlockedUserService blockedUserService)
         {
             this._mapper = mapper;
             this._messageService = messageService;
             this._userService = userService;
+            this._blockedUserService = blockedUserService;
         }
         #endregion
 
@@ -83,116 +80,54 @@ namespace MessageBox.Api.Controllers
 
             return Ok(await PrepareMessageModelAsync(messages));
         }
-        /*
-        [AllowAnonymous]
-        [HttpPost(ApiRoutes.Messages.Login)]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+
+        [HttpPost(ApiRoutes.Messages.Send)]
+        public async Task<IActionResult> SendMessage([FromBody] SendMessageModel model)
         {
-            if (model is null)
-                return BadRequest("Model cannot be null.");
+            var currentUser = await GetCurrentUserAsync();
 
-            var message = await _messageService.LoginMessageWithMessagenameAsync(model.Messagename, model.Password);
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
 
-            if (message is null)
-                return BadRequest(new { message = "Messagename or password is incorrect" });
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, message.Id.ToString())
-                }),
-                Expires = DateTime.Now.AddMinutes(5),
-                //Expires = DateTime.Now.AddDays(_appSettings.LoginExpirationDay),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            // return basic message info and authentication token
-            return Ok(new
-            {
-                Id = message.Id,
-                Email = message.Email,
-                Messagename = message.Messagename,
-                Token = tokenString
-            });
-        }
-
-        [AllowAnonymous]
-        [HttpPost(ApiRoutes.Messages.Register)]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
-        {
-            if (model is null)
+            if (model is null
+                || model is default(SendMessageModel))
                 return BadRequest(nameof(model));
 
-            if (string.IsNullOrEmpty(model.Email))
-                return BadRequest("Email cannot be null.");
+            if (string.IsNullOrEmpty(model.ReceiverUserName))
+                return BadRequest("ReceiverUserName cannot be null.");
 
-            if (string.IsNullOrEmpty(model.Messagename))
-                return BadRequest("Messagename cannot be null.");
+            if (string.IsNullOrWhiteSpace(model.Content))
+                return BadRequest("You cannot send and empty message to another user.\nPlease add some message.");
 
-            var existMessageByEmail = await _messageService.GetMessageByEmailAsync(model.Email);
-            var existMessageByMessagename = await _messageService.GetMessageByMessagenameAsync(model.Messagename);
+            // Check receiver user is exist.
+            // Check receiver user is blocked the sender user.
+            // In this situation we save the message coming from
+            // blocked user but not showed up to the receiver user.
+            var receiverUser = await _userService.GetUserByUsernameAsync(model.ReceiverUserName);
 
-            if (existMessageByEmail != null
-                || existMessageByMessagename != null)
-                return Content("This message is already exit !!!\nPlease use different email and messagename.");
+            if (receiverUser is null
+                || receiverUser is default(User))
+                return NotFound("Receiver User not found. Please check the username or send a message to another user.");
 
-            if (existMessageByEmail is null
-                && existMessageByMessagename is null)
+            var message = new Message()
             {
-                // map model to entity
-                var message = _mapper.Map<Message>(model);
+                SenderUserId = currentUser.Id,
+                ReceiverUserId = receiverUser.Id,
+                Content = model.Content
+            };
 
-                try
-                {
-                    // create message
-                    await _messageService.RegisterMessageAsync(message, model.Password);
-                }
-                catch (Exception ex)
-                {
-                    // return error message if there was an exception
-                    return BadRequest(new { message = ex.Message });
-                }
-            }
+            await _messageService.InsertMessageAsync(message);
 
-            return Ok("Message registered ✔");
+            // Check the receiver user is blocked the current user.
+            var blockedUser = await _blockedUserService.CheckUserIsBlockedAsync(receiverUser.Id, currentUser.Id);
+            if (blockedUser is null
+                || blockedUser is default(BlockedUser))
+                return Ok("Message sent ✔");
+
+            // If blocked, we show a user friendly message to current user.
+            return Ok("Message received  ✔\nThis message will not be showed to the receiver. Because you are blocked by the receiver user.");
         }
-
-        [HttpPut(ApiRoutes.Messages.Update)]
-        public async Task<IActionResult> Update(int messageId, [FromBody] UpdateModel model)
-        {
-            if (messageId <= 0)
-                return BadRequest("Id value must be greater than zero.");
-
-            if (model is null)
-                return BadRequest("Model is required.");
-
-            // check the message is exist
-            var message = await _messageService.GetMessageByIdAsync(messageId);
-
-            if (message is null)
-                return NotFound("Message not found.");
-
-            try
-            {
-                //map model to message entity
-                message = _mapper.Map<Message>(model);
-                message.Id = messageId;
-
-                // update message 
-                await _messageService.UpdateMessageAsync(message, model.Password);
-                return Ok("Message updated ✔");
-            }
-            catch (Exception ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }*/
         #endregion
 
         #region Private Helper Methods
@@ -207,6 +142,16 @@ namespace MessageBox.Api.Controllers
             return result;
         }
 
+        private async Task<User> GetCurrentUserAsync()
+        {
+            var currentUserId = GetCurrentUserId();
+
+            if (currentUserId is 0)
+                return default;
+
+            return await _userService.GetUserByIdAsync(currentUserId);
+        }
+
         private async Task<IList<MessageModel>> PrepareMessageModelAsync(IList<Message> messages)
         {
             if (messages is null
@@ -215,7 +160,7 @@ namespace MessageBox.Api.Controllers
 
             var result = new List<MessageModel>();
 
-            foreach(var message in messages)
+            foreach (var message in messages)
             {
                 result.Add(new MessageModel()
                 {

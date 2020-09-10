@@ -49,13 +49,17 @@ namespace MessageBox.Core.Services.Users
         public async Task<User> GetUserByUsernameAsync(string userName)
         {
             return await _userRepository.Table
-                .Where(u => string.Equals(u.Username, userName))?.FirstOrDefaultAsync();
+                .Where(u => string.Equals(u.Username, userName)
+                && u.Active
+                && !u.Deleted)?.FirstOrDefaultAsync();
         }
 
         public async Task<string> GetUsernameByUserIdAsync(int userId)
         {
             var user = await _userRepository.Table
-                .Where(u => u.Id == userId && u.Active && !u.Deleted)?.FirstOrDefaultAsync();
+                .Where(u => u.Id == userId
+                && u.Active
+                && !u.Deleted)?.FirstOrDefaultAsync();
 
             if (user is null
                 || user is default(User))
