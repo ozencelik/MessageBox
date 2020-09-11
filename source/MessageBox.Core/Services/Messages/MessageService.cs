@@ -1,6 +1,7 @@
 ﻿using MessageBox.Data;
 using MessageBox.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,6 +55,16 @@ namespace MessageBox.Core.Services.Messages
                 .Where(m => m.Active
                 && !m.Deleted
                 && m.ReceiverUserId == userId)?.ToListAsync();
+        }
+        
+        public async Task<IList<Message>> GetAllUnreadMessagesByReceiverUserIdAsync(int userId)
+        {
+            return await _messageRepository.Table
+                .Where(m => m.Active
+                && !m.Deleted
+                && m.ReceiverUserId == userId
+                && !m.Blocked
+                && m.ReadOn == default)?.ToListAsync();
         }
 
         public async Task<Message> GetMessageByIdAsync(int messageId)

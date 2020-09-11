@@ -89,11 +89,6 @@ namespace MessageBox.Api.Controllers
         }
 
         [HttpGet(ApiRoutes.Messages.GetAll)]
-        [SwaggerOperation(
-            Summary = "Get All Messages",
-            Description = "Gets all messages that were sent or received by the current user",
-            OperationId = "Message.GetAll",
-            Tags = new[] { "MessageEndpoints" })]
         public async Task<IActionResult> GetAll()
         {
             var currentUser = await GetCurrentUserAsync();
@@ -107,6 +102,28 @@ namespace MessageBox.Api.Controllers
             var messages = await _messageService.GetAllMessagesByUserIdAsync(currentUser.Id);
 
             return Ok(await PrepareMessageModelAsync(messages));
+        }
+
+        [HttpGet(ApiRoutes.Messages.GetAllUnRead)]
+        public async Task<IActionResult> GetAllUnReadMessage()
+        {
+            var currentUser = await GetCurrentUserAsync();
+
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
+
+            // Authorized users can only get their messages.
+            // They cannot acces someone's messages.
+            var messages = await _messageService.GetAllUnreadMessagesByReceiverUserIdAsync(currentUser.Id);
+
+            var unreadMessages = await PrepareMessageModelAsync(messages);
+
+            if (unreadMessages is null
+                || !unreadMessages.Any()) 
+                return Ok("No unread message found ✔");
+
+            return Ok(unreadMessages);
         }
 
         [HttpPost(ApiRoutes.Messages.Send)]
@@ -144,7 +161,6 @@ namespace MessageBox.Api.Controllers
                 ReceiverUserId = receiverUser.Id,
                 Content = model.Content
             };
-
             await _messageService.InsertMessageAsync(message);
 
             // Check the receiver user is blocked the current user.
@@ -152,6 +168,9 @@ namespace MessageBox.Api.Controllers
             if (blockedUser is null
                 || blockedUser is default(BlockedUser))
                 return Ok("Message sent ✔");
+
+            message.Blocked = true;
+            await _messageService.UpdateMessageAsync(message);
 
             // If blocked, we show a user friendly message to current user.
             return Ok("Message received  ✔\nThis message will not be showed to the receiver. Because you are blocked by the receiver user.");
@@ -202,17 +221,19 @@ namespace MessageBox.Api.Controllers
                 || messages.Count() == 0)
                 return default;
 
-            var currentUserId = GetCurrentUserId();
+            var currentUser = await GetCurrentUserAsync();
 
             var result = new List<MessageModel>();
 
             foreach (var message in messages)
             {
-                SetDeliveredAndReadTimeForMessageAsync(currentUserId, message);
+                SetDeliveredAndReadTimeForMessageAsync(currentUser.Id, message);
                 result.Add(new MessageModel()
                 {
-                    SenderUserName = await _userService.GetUsernameByUserIdAsync(message.SenderUserId),
-                    ReceiverUserName = await _userService.GetUsernameByUserIdAsync(message.ReceiverUserId),
+                    SenderUserName = currentUser.Id == message.SenderUserId ? currentUser.Username
+                                                                            : await _userService.GetUsernameByUserIdAsync(message.SenderUserId),
+                    ReceiverUserName = currentUser.Id == message.ReceiverUserId ? currentUser.Username 
+                                                                                : await _userService.GetUsernameByUserIdAsync(message.ReceiverUserId),
                     Content = message.Content,
                     DeliveredOn = message.DeliveredOn,
                     ReadOn = message.ReadOn

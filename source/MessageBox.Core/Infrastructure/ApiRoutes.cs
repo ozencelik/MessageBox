@@ -38,6 +38,8 @@
 
             public const string GetAll = Base + "/messages";
 
+            public const string GetAllUnRead = Base + "/messages/unread";
+
             public const string Send = Base + "/messages";
         }
 

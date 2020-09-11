@@ -40,6 +40,13 @@ namespace MessageBox.Core.Services.Messages
         Task<IList<Message>> GetAllMessagesByReceiverUserIdAsync(int userId);
 
         /// <summary>
+        /// Gets all messages by receiver user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllUnreadMessagesByReceiverUserIdAsync(int userId);
+
+        /// <summary>
         /// Gets a message
         /// </summary>
         /// <param name="messageId">Message identifier</param>
