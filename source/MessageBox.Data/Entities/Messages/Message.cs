@@ -23,6 +23,11 @@ namespace MessageBox.Data.Entities
         public string Content { get; set; }
 
         /// <summary>
+        /// Define a message is blocked or not
+        /// </summary>
+        public bool Blocked { get; set; }
+
+        /// <summary>
         /// Delivery date of a message
         /// </summary>
         public DateTime DeliveredOn { get; set; }

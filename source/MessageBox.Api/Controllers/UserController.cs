@@ -119,7 +119,7 @@ namespace MessageBox.Api.Controllers
 
             if (existUserByEmail != null
                 || existUserByUsername != null)
-                return Content("This user is already exit !!!\nPlease use different email and username.");
+                return Content("This user is already exist !!!\nPlease use different email and username.");
 
             if (existUserByEmail is null
                 && existUserByUsername is null)

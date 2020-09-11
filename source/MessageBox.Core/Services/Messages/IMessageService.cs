@@ -19,11 +19,25 @@ namespace MessageBox.Core.Services.Messages
         Task<IList<Message>> GetAllMessagesAsync();
 
         /// <summary>
+        /// Gets all messages by sender and receiver user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllMessagesByUserIdAsync(int userId);
+
+        /// <summary>
         /// Gets all messages by sender user
         /// </summary>
         /// <param name="userId">User id</param>
         /// <returns>Messages</returns>
         Task<IList<Message>> GetAllMessagesBySenderUserIdAsync(int userId);
+
+        /// <summary>
+        /// Gets all messages by receiver user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllMessagesByReceiverUserIdAsync(int userId);
 
         /// <summary>
         /// Gets a message

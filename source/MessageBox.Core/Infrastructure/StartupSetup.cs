@@ -20,8 +20,6 @@ namespace MessageBox.Core.Infrastructure
                         errorNumbersToAdd: null);
                 }),
                 ServiceLifetime.Transient);
-
-            //services.AddTransient<Func<AppDbContext>>(options => () => options.GetService<AppDbContext>());
         }
             
         #endregion

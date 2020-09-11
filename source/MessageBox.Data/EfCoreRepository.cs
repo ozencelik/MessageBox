@@ -32,13 +32,16 @@ namespace MessageBox.Data
 
         public async Task<IList<T>> GetAllAsync()
         {
-            return await _dbContext.Set<T>().ToListAsync();
+            return await _dbContext.Set<T>()
+                .Where(e => !e.Deleted)?
+                .ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
             return await _dbContext.Set<T>()
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id
+                && !e.Deleted);
         }
 
         public async Task<int> InsertAsync(T entity)

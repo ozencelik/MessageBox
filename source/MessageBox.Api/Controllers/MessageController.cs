@@ -45,14 +45,47 @@ namespace MessageBox.Api.Controllers
         [HttpGet(ApiRoutes.Messages.Get)]
         public async Task<IActionResult> GetById(int messageId)
         {
+            var currentUser = await GetCurrentUserAsync();
+
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
+
             if (messageId <= 0)
                 return BadRequest("Id value must be greater than zero.");
 
             var message = await _messageService.GetMessageByIdAsync(messageId);
 
-            var model = _mapper.Map<MessageModel>(message);
+            if (message is null
+                || message is default(Message))
+                return NotFound(nameof(message));
 
-            return Ok(model);
+            if (message.SenderUserId == currentUser.Id)
+                return Ok(new MessageModel()
+                {
+                    SenderUserName = currentUser.Username,
+                    ReceiverUserName = await _userService.GetUsernameByUserIdAsync(message.ReceiverUserId),
+                    Content = message.Content,
+                    DeliveredOn = message.DeliveredOn,
+                    ReadOn = message.ReadOn
+                });
+            else if (message.ReceiverUserId == currentUser.Id)
+            {
+                if (message.Blocked)
+                    return Ok("Blocked message cannot be read by receiver user.");
+
+                SetDeliveredAndReadTimeForMessageAsync(currentUser.Id, message);
+                return Ok(new MessageModel()
+                {
+                    SenderUserName = await _userService.GetUsernameByUserIdAsync(message.SenderUserId),
+                    ReceiverUserName = currentUser.Username,
+                    Content = message.Content,
+                    DeliveredOn = message.DeliveredOn,
+                    ReadOn = message.ReadOn,
+                });
+            }
+
+            return Unauthorized("You cannot read someone's messages !!!");
         }
 
         [HttpGet(ApiRoutes.Messages.GetAll)]
@@ -63,20 +96,15 @@ namespace MessageBox.Api.Controllers
             Tags = new[] { "MessageEndpoints" })]
         public async Task<IActionResult> GetAll()
         {
-            var currentUserId = GetCurrentUserId();
+            var currentUser = await GetCurrentUserAsync();
 
-            if (currentUserId is 0)
+            if (currentUser is null
+                || currentUser is default(User))
                 return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
-
-            var user = await _userService.GetUserByIdAsync(currentUserId);
-
-            if (user is null
-                || user is default(User))
-                return NotFound("User not found.");
 
             // Authorized users can only get their messages.
             // They cannot acces someone's messages.
-            var messages = await _messageService.GetAllMessagesBySenderUserIdAsync(currentUserId);
+            var messages = await _messageService.GetAllMessagesByUserIdAsync(currentUser.Id);
 
             return Ok(await PrepareMessageModelAsync(messages));
         }
@@ -152,21 +180,42 @@ namespace MessageBox.Api.Controllers
             return await _userService.GetUserByIdAsync(currentUserId);
         }
 
+        private async void SetDeliveredAndReadTimeForMessageAsync(int currentUserId, Message message)
+        {
+            if (currentUserId < 0
+                || message is null
+                || message is default(Message)
+                || currentUserId != message.ReceiverUserId)
+                return;
+
+            // Update delivered time and read time
+            // Delivered time set once but read time set for the message call from API.
+            if (message.DeliveredOn == default)
+                message.DeliveredOn = DateTime.Now;
+            message.ReadOn = DateTime.Now;
+            await _messageService.UpdateMessageAsync(message);
+        }
+
         private async Task<IList<MessageModel>> PrepareMessageModelAsync(IList<Message> messages)
         {
             if (messages is null
                 || messages.Count() == 0)
                 return default;
 
+            var currentUserId = GetCurrentUserId();
+
             var result = new List<MessageModel>();
 
             foreach (var message in messages)
             {
+                SetDeliveredAndReadTimeForMessageAsync(currentUserId, message);
                 result.Add(new MessageModel()
                 {
                     SenderUserName = await _userService.GetUsernameByUserIdAsync(message.SenderUserId),
                     ReceiverUserName = await _userService.GetUsernameByUserIdAsync(message.ReceiverUserId),
-                    Content = message.Content
+                    Content = message.Content,
+                    DeliveredOn = message.DeliveredOn,
+                    ReadOn = message.ReadOn
                 });
             }
 

@@ -31,10 +31,29 @@ namespace MessageBox.Core.Services.Messages
             return await _messageRepository.GetAllAsync();
         }
 
+        public async Task<IList<Message>> GetAllMessagesByUserIdAsync(int userId)
+        {
+            return await _messageRepository.Table
+                .Where(m => m.Active
+                && !m.Deleted
+                && (m.SenderUserId == userId 
+                || m.ReceiverUserId == userId))?.ToListAsync();
+        }
+
         public async Task<IList<Message>> GetAllMessagesBySenderUserIdAsync(int userId)
         {
             return await _messageRepository.Table
-                .Where(m => m.SenderUserId == userId || m.ReceiverUserId == userId)?.ToListAsync();
+                .Where(m => m.Active
+                && !m.Deleted
+                && m.SenderUserId == userId)?.ToListAsync();
+        }
+
+        public async Task<IList<Message>> GetAllMessagesByReceiverUserIdAsync(int userId)
+        {
+            return await _messageRepository.Table
+                .Where(m => m.Active
+                && !m.Deleted
+                && m.ReceiverUserId == userId)?.ToListAsync();
         }
 
         public async Task<Message> GetMessageByIdAsync(int messageId)

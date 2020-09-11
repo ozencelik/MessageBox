@@ -55,7 +55,7 @@ namespace MessageBox.Core.Services.Users
                 return await UpdateBlockedUserAsync(blockedUser);
             }
 
-            return default;
+            return blockedUser.Id;
         }
         
         public async Task<BlockedUser> CheckUserIsBlockedAsync(int blockingUserId, int blockedUserId)

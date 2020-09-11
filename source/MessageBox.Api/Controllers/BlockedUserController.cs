@@ -56,9 +56,9 @@ namespace MessageBox.Api.Controllers
             var result = await _blockedUserService.BlockUser(blockingUser, blockedUser);
 
             if (result is default(int))
-                return Ok("User not blocked.\n The user can be already blocked.");
+                return Ok("User not blocked.\nThe user can be already blocked.");
 
-            return Ok("User blocked ✔\nMessages coming from blocked user will not be shoed up to you.");
+            return Ok("User blocked ✔\nMessages coming from blocked user will not be showed up to you.");
         }
         #endregion
 
