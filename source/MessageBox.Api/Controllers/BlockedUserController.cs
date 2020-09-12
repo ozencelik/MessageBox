@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
 using MessageBox.Core.Infrastructure;
+using MessageBox.Core.Services.Logs;
 using MessageBox.Core.Services.Users;
 using MessageBox.Data.Entities;
+using MessageBox.Data.Models;
 using MessageBox.Data.Models.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,17 +19,20 @@ namespace MessageBox.Api.Controllers
     public class BlockedUserController : Controller
     {
         #region Fields
-        private readonly IMapper _mapper;
+        private readonly IActivityLogService _activityLogService;
+        private readonly ILogService _logService;
         private readonly IBlockedUserService _blockedUserService;
         private readonly IUserService _userService;
         #endregion
 
         #region Ctor
-        public BlockedUserController(IMapper mapper,
+        public BlockedUserController(IActivityLogService activityLogService,
+            ILogService logService,
             IBlockedUserService blockedUserService,
             IUserService userService)
         {
-            this._mapper = mapper;
+            this._activityLogService = activityLogService;
+            this._logService = logService;
             this._blockedUserService = blockedUserService;
             this._userService = userService;
         }
@@ -53,11 +57,40 @@ namespace MessageBox.Api.Controllers
             if (blockedUser is null)
                 return NotFound("Blocked user not found.");
 
-            var result = await _blockedUserService.BlockUser(blockingUser, blockedUser);
+            // Insert a new blockedUser.
+            try
+            {
+                var result = await _blockedUserService.BlockUser(blockingUser, blockedUser);
 
-            if (result is default(int))
-                return Ok("User not blocked.\nThe user can be already blocked.");
+                if (result is default(int))
+                {
+                    await _activityLogService.LogInvalidBlockedUserActivityAsync(new ActivityLog()
+                    {
+                        UserId = blockingUser.Id,
+                        Message = string.Format("{0} user not blocked by {1} user"
+                        , blockedUser.Id, blockingUser.Id)
+                    });
+                    return Ok("User not blocked.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await _logService.LogErrorAsync(new CreateLogModel()
+                {
+                    UserId = blockingUser.Id,
+                    Title = "BlockedUser Error",
+                    Message = "Error happened in BlockedUser Controller, Block function",
+                    Exception = ex
+                });
+                return Ok("User not blocked.");
+            }
 
+            await _activityLogService.LogBlockedUserActivityAsync(new ActivityLog()
+            {
+                UserId = blockingUser.Id,
+                Message = string.Format("{0} user blocked by {1} user ✔"
+                , blockedUser.Id, blockingUser.Id)
+            });
             return Ok("User blocked ✔\nMessages coming from blocked user will not be showed up to you.");
         }
         #endregion

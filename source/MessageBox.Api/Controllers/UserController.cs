@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MessageBox.Api.Configuration;
 using MessageBox.Core.Infrastructure;
+using MessageBox.Core.Services.Logs;
 using MessageBox.Core.Services.Users;
 using MessageBox.Data.Entities;
 using MessageBox.Data.Models;
@@ -18,22 +19,28 @@ using System.Threading.Tasks;
 
 namespace MessageBox.Api.Controllers
 {
-    [Authorize (AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("[controller]")]
     public class UserController : Controller
     {
         #region Fields
+        private readonly IActivityLogService _activityLogService;
+        private readonly ILogService _logService;
         private readonly AppSettings _appSettings;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         #endregion
 
         #region Ctor
-        public UserController(IOptions<AppSettings> appSettings,
+        public UserController(IActivityLogService activityLogService,
+            ILogService logService,
+            IOptions<AppSettings> appSettings,
             IMapper mapper,
             IUserService userService)
         {
+            this._activityLogService = activityLogService;
+            this._logService = logService;
             this._appSettings = appSettings.Value;
             this._mapper = mapper;
             this._userService = userService;
@@ -71,34 +78,64 @@ namespace MessageBox.Api.Controllers
             if (model is null)
                 return BadRequest("Model cannot be null.");
 
-            var user = await _userService.LoginUserWithUsernameAsync(model.Username, model.Password);
-
-            if (user is null)
-                return BadRequest(new { message = "Username or password is incorrect" });
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                var user = await _userService.LoginUserWithUsernameAsync(model.Username, model.Password);
+
+                if (user is null)
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
-                }),
-                Expires = DateTime.Now.AddMinutes(5),
-                //Expires = DateTime.Now.AddDays(_appSettings.LoginExpirationDay),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+                    await _activityLogService.LogInvalidLoginActivityAsync(new ActivityLog()
+                    {
+                        UserId = default,
+                        Message = string.Format("{0} user cannot login with the password {1}."
+                              , model.Username, model.Password)
+                    });
+                    return BadRequest(new { message = "Username or password is incorrect" });
+                }
 
-            // return basic user info and authentication token
-            return Ok(new
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    }),
+                    Expires = DateTime.Now.AddMinutes(5),
+                    //Expires = DateTime.Now.AddDays(_appSettings.LoginExpirationDay),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+
+                await _activityLogService.LogLoginActivityAsync(new ActivityLog()
+                {
+                    UserId = user.Id,
+                    Message = string.Format("{0} user successfully login. ✔"
+                              , model.Username)
+                });
+                // return basic user info and authentication token
+                return Ok(new
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Username = user.Username,
+                    Token = tokenString
+                });
+            }
+            catch (Exception ex)
             {
-                Id = user.Id,
-                Email = user.Email,
-                Username = user.Username,
-                Token = tokenString
-            });
+                await _logService.LogErrorAsync(new CreateLogModel()
+                {
+                    UserId = default,
+                    Title = "Login Error",
+                    Message = "Error happened in User Controller, Login function",
+                    Exception = ex
+                });
+
+                return Ok("User not login.");
+            }
         }
 
         [AllowAnonymous]
@@ -108,7 +145,7 @@ namespace MessageBox.Api.Controllers
             if (model is null)
                 return BadRequest(nameof(model));
 
-            if(string.IsNullOrEmpty(model.Email))
+            if (string.IsNullOrEmpty(model.Email))
                 return BadRequest("Email cannot be null.");
 
             if (string.IsNullOrEmpty(model.Username))
@@ -119,7 +156,15 @@ namespace MessageBox.Api.Controllers
 
             if (existUserByEmail != null
                 || existUserByUsername != null)
+            {
+                await _activityLogService.LogInvalidRegisterActivityAsync(new ActivityLog()
+                {
+                    UserId = existUserByUsername.Id,
+                    Message = string.Format("{0} user is already exist."
+                              , existUserByUsername.Username)
+                });
                 return Content("This user is already exist !!!\nPlease use different email and username.");
+            }
 
             if (existUserByEmail is null
                 && existUserByUsername is null)
@@ -131,11 +176,25 @@ namespace MessageBox.Api.Controllers
                 {
                     // create user
                     await _userService.RegisterUserAsync(user, model.Password);
+                    await _activityLogService.LogRegisterActivityAsync(new ActivityLog()
+                    {
+                        UserId = user.Id,
+                        Message = string.Format("{0} user registered successfully. ✔"
+                                 , user.Username)
+                    });
                 }
                 catch (Exception ex)
                 {
                     // return error message if there was an exception
-                    return BadRequest(new { message = ex.Message });
+                    await _logService.LogErrorAsync(new CreateLogModel()
+                    {
+                        UserId = default,
+                        Title = "Register Error",
+                        Message = "Error happened in User Controller, Register function",
+                        Exception = ex
+                    });
+
+                    return Ok("User not registered.");
                 }
             }
 
@@ -147,14 +206,14 @@ namespace MessageBox.Api.Controllers
         {
             if (userId <= 0)
                 return BadRequest("Id value must be greater than zero.");
-            
+
             if (model is null)
                 return BadRequest("Model is required.");
 
             // check the user is exist
             var user = await _userService.GetUserByIdAsync(userId);
 
-            if(user is null)
+            if (user is null)
                 return NotFound("User not found.");
 
             try

@@ -16,16 +16,19 @@ namespace MessageBox.Api.Controllers
     public class LogController : Controller
     {
         #region Fields
-        private readonly IMapper _mapper;
+        private readonly IActivityLogService _activityLogService;
         private readonly ILogService _logService;
+        private readonly IMapper _mapper;
         #endregion
 
         #region Ctor
-        public LogController(IMapper mapper,
-            ILogService logService)
+        public LogController(IActivityLogService activityLogService,
+            ILogService logService, 
+            IMapper mapper)
         {
-            this._mapper = mapper;
+            this._activityLogService = activityLogService;
             this._logService = logService;
+            this._mapper = mapper;
         }
         #endregion
 

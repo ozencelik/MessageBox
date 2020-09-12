@@ -40,7 +40,7 @@ namespace MessageBox.Core.Services.Users
             if (blockedUser is null
                 || blockedUser is default(BlockedUser))
             {
-                await InsertBlockedUserAsync(new BlockedUser()
+                return await InsertBlockedUserAsync(new BlockedUser()
                 {
                     BlockingUserId = blockingUserModel.Id,
                     BlockedUserId = blockedUserModel.Id

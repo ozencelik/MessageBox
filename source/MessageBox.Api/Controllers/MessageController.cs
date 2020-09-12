@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using MessageBox.Core.Infrastructure;
+﻿using MessageBox.Core.Infrastructure;
+using MessageBox.Core.Services.Logs;
 using MessageBox.Core.Services.Messages;
 using MessageBox.Core.Services.Users;
 using MessageBox.Data.Entities;
@@ -7,7 +7,6 @@ using MessageBox.Data.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,19 +21,22 @@ namespace MessageBox.Api.Controllers
     public class MessageController : Controller
     {
         #region Fields
-        private readonly IMapper _mapper;
+        private readonly IActivityLogService _activityLogService;
+        private readonly ILogService _logService;
         private readonly IMessageService _messageService;
         private readonly IUserService _userService;
         private readonly IBlockedUserService _blockedUserService;
         #endregion
 
         #region Ctor
-        public MessageController(IMapper mapper,
+        public MessageController(IActivityLogService activityLogService,
+            ILogService logService, 
             IMessageService messageService,
             IUserService userService,
             IBlockedUserService blockedUserService)
         {
-            this._mapper = mapper;
+            this._activityLogService = activityLogService;
+            this._logService = logService;
             this._messageService = messageService;
             this._userService = userService;
             this._blockedUserService = blockedUserService;
@@ -155,23 +157,52 @@ namespace MessageBox.Api.Controllers
                 || receiverUser is default(User))
                 return NotFound("Receiver User not found. Please check the username or send a message to another user.");
 
-            var message = new Message()
+            try
             {
-                SenderUserId = currentUser.Id,
-                ReceiverUserId = receiverUser.Id,
-                Content = model.Content
-            };
-            await _messageService.InsertMessageAsync(message);
+                var message = new Message()
+                {
+                    SenderUserId = currentUser.Id,
+                    ReceiverUserId = receiverUser.Id,
+                    Content = model.Content
+                };
+                await _messageService.InsertMessageAsync(message);
 
-            // Check the receiver user is blocked the current user.
-            var blockedUser = await _blockedUserService.CheckUserIsBlockedAsync(receiverUser.Id, currentUser.Id);
-            if (blockedUser is null
-                || blockedUser is default(BlockedUser))
-                return Ok("Message sent ✔");
+                // Check the receiver user is blocked the current user.
+                var blockedUser = await _blockedUserService.CheckUserIsBlockedAsync(receiverUser.Id, currentUser.Id);
+                if (blockedUser is null
+                    || blockedUser is default(BlockedUser))
+                {
+                    await _activityLogService.LogSendMessageActivityAsync(new ActivityLog()
+                    {
+                        UserId = currentUser.Id,
+                        Message = string.Format("{0} user send message to {1} user"
+                           , currentUser.Id, receiverUser.Id)
+                    });
+                    return Ok("Message sent ✔");
+                }
 
-            message.Blocked = true;
-            await _messageService.UpdateMessageAsync(message);
+                message.Blocked = true;
+                await _messageService.UpdateMessageAsync(message);
+            }
+            catch (Exception ex)
+            {
+                await _logService.LogErrorAsync(new CreateLogModel()
+                {
+                    UserId = currentUser.Id,
+                    Title = "SendMessage Error",
+                    Message = "Error happened in Message Controller, SendMessage function",
+                    Exception = ex
+                });
 
+                return Ok("Message not sent.");
+            }
+
+            await _activityLogService.LogInvalidSendMessageActivityAsync(new ActivityLog()
+            {
+                UserId = currentUser.Id,
+                Message = string.Format("{0} user send a blocked message to {1} user. This message will not be showed up to receiver"
+                           , currentUser.Id, receiverUser.Id)
+            });
             // If blocked, we show a user friendly message to current user.
             return Ok("Message received  ✔\nThis message will not be showed to the receiver. Because you are blocked by the receiver user.");
         }

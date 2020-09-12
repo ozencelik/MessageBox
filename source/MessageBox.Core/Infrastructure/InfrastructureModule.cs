@@ -4,7 +4,6 @@ using MessageBox.Data;
 using MessageBox.Core.Services.Users;
 using MessageBox.Core.Services.Messages;
 using MessageBox.Core.Services.Logs;
-using ActivityLogBox.Core.Services.Logs;
 
 namespace MessageBox.Core.Infrastructure
 {

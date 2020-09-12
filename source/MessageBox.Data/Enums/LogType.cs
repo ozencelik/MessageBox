@@ -2,10 +2,10 @@
 {
     public enum LogType
     {
-        Warning,
-        Debug,
         Information,
+        Debug,
         Error,
-        FatalError
+        FatalError,
+        Warning
     }
 }

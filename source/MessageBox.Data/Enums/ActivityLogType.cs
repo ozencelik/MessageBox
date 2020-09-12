@@ -3,10 +3,12 @@
     public enum ActivityLogType
     {
         BlockUser,
-        InvalidLogin,
+        InvalidBlockUser,
         Login,
-        Logout,
+        InvalidLogin,
         SendMessage,
-        Register
+        InvalidSendMessage,
+        Register,
+        InvalidRegister
     }
 }
