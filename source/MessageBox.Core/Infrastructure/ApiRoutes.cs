@@ -52,7 +52,7 @@
 
         public static class BlockedUsers
         {
-            public const string Get = Base + "/blocked-users";
+            public const string Get = Base + "/blocked-user";
 
             public const string GetAllBlockedUser = Base + "/blocked-users";
 

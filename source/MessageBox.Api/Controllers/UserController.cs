@@ -21,7 +21,6 @@ namespace MessageBox.Api.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
-    [Route("[controller]")]
     public class UserController : Controller
     {
         #region Fields

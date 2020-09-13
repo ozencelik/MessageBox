@@ -15,7 +15,6 @@ namespace MessageBox.Api.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
-    [Route("[controller]")]
     public class ActivityLogController : Controller
     {
         #region Fields
@@ -54,7 +53,7 @@ namespace MessageBox.Api.Controllers
             return Ok(log);
         }
 
-        [HttpGet(ApiRoutes.Logs.GetAll)]
+        [HttpGet(ApiRoutes.ActivityLogs.GetAll)]
         public async Task<IActionResult> GetAll()
         {
             var currentUser = await GetCurrentUserAsync();
