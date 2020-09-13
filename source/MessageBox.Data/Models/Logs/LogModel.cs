@@ -1,8 +1,9 @@
-﻿using MessageBox.Data.Enums;
+﻿using MessageBox.Data.BaseModels;
+using MessageBox.Data.Enums;
 
 namespace MessageBox.Data.Models
 {
-    public partial class LogModel
+    public partial class LogModel : BaseModel
     {
         /// <summary>
         /// LogType

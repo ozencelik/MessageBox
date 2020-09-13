@@ -1,12 +1,9 @@
-﻿namespace MessageBox.Data.Models.Users
-{
-    public partial class BlockedUserModel
-    {
-        /// <summary>
-        /// BlockedUser identifier.
-        /// </summary>
-        public int Id { get; set; }
+﻿using MessageBox.Data.BaseModels;
 
+namespace MessageBox.Data.Models.Users
+{
+    public partial class BlockedUserModel : BaseModel
+    {
         /// <summary>
         /// BlockingUserName.
         /// Authorized user.
