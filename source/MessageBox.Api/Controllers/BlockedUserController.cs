@@ -231,7 +231,6 @@ namespace MessageBox.Api.Controllers
                 return NotFound("No blockedUser found.");
             }
         }
-
         #endregion
 
         #region Private Helper Methods

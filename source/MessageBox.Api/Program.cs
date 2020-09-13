@@ -25,7 +25,6 @@ namespace MessageBox
                 {
                     var context = services.GetRequiredService<AppDbContext>();
                     context.Database.EnsureCreated();
-                    Seeder.Initialize(services);
                 }
                 catch (Exception ex)
                 {
