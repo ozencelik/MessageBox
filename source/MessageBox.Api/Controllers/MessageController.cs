@@ -147,6 +147,9 @@ namespace MessageBox.Api.Controllers
             if (string.IsNullOrWhiteSpace(model.Content))
                 return BadRequest("You cannot send and empty message to another user.\nPlease add some message.");
 
+            if (string.Equals(model.ReceiverUserName, currentUser.Username))
+                return BadRequest("You cannot send a message to yourself.\nPlease change the username to send a message to another user.");
+
             // Check receiver user is exist.
             // Check receiver user is blocked the sender user.
             // In this situation we save the message coming from

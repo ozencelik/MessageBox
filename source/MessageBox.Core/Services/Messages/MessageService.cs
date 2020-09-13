@@ -24,7 +24,8 @@ namespace MessageBox.Core.Services.Messages
         #region Methods
         public async Task<int> DeleteMessageAsync(Message message)
         {
-            return await _messageRepository.DeleteAsync(message);
+            message.Deleted = true;
+            return await UpdateMessageAsync(message);
         }
 
         public async Task<IList<Message>> GetAllMessagesAsync()
@@ -79,6 +80,7 @@ namespace MessageBox.Core.Services.Messages
 
         public async Task<int> UpdateMessageAsync(Message message)
         {
+            message.UpdatedOn = DateTime.Now;
             return await _messageRepository.UpdateAsync(message);
         }
         #endregion

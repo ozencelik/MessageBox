@@ -27,7 +27,8 @@ namespace MessageBox.Core.Services.Users
         #region Methods
         public async Task<int> DeleteUserAsync(User user)
         {
-            return await _userRepository.DeleteAsync(user);
+            user.Deleted = true;
+            return await UpdateUserAsync(user);
         }
 
         public async Task<IList<User>> GetAllUsersAsync()
@@ -180,6 +181,7 @@ namespace MessageBox.Core.Services.Users
                 user.PasswordSalt = passwordSalt;
             }
 
+            user.UpdatedOn = DateTime.Now;
             return await _userRepository.UpdateAsync(user);
         }
         #endregion

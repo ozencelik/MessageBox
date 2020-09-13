@@ -2,6 +2,7 @@
 using MessageBox.Data.Entities;
 using MessageBox.Data.Enums;
 using MessageBox.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -23,7 +24,8 @@ namespace MessageBox.Core.Services.Logs
         #region Methods
         public async Task<int> DeleteLogAsync(Log log)
         {
-            return await _logRepository.DeleteAsync(log);
+            log.Deleted = true;
+            return await UpdateLogAsync(log);
         }
 
         public async Task<IList<Log>> GetAllLogsAsync()
@@ -158,6 +160,7 @@ namespace MessageBox.Core.Services.Logs
 
         public async Task<int> UpdateLogAsync(Log log)
         {
+            log.UpdatedOn = DateTime.Now;
             return await _logRepository.UpdateAsync(log);
         }
         #endregion

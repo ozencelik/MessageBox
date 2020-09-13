@@ -101,8 +101,7 @@ namespace MessageBox.Api.Controllers
                     {
                     new Claim(ClaimTypes.Name, user.Id.ToString())
                     }),
-                    Expires = DateTime.Now.AddMinutes(5),
-                    //Expires = DateTime.Now.AddDays(_appSettings.LoginExpirationDay),
+                    Expires = DateTime.Now.AddDays(_appSettings.LoginExpirationDay),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -121,6 +120,7 @@ namespace MessageBox.Api.Controllers
                     Id = user.Id,
                     Email = user.Email,
                     Username = user.Username,
+                    Message = string.Format("Your login session will be take {0} day.", _appSettings.LoginExpirationDay),
                     Token = tokenString
                 });
             }

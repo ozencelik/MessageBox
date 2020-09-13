@@ -2,6 +2,7 @@
 using MessageBox.Data;
 using MessageBox.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -73,7 +74,8 @@ namespace MessageBox.Core.Services.Users
 
         public async Task<int> DeleteBlockedUserAsync(BlockedUser blockedUser)
         {
-            return await _blockedUserRepository.DeleteAsync(blockedUser);
+            blockedUser.Deleted = true;
+            return await UpdateBlockedUserAsync(blockedUser);
         }
 
         public async Task<IList<BlockedUser>> GetAllBlockedUsersAsync()
@@ -109,6 +111,7 @@ namespace MessageBox.Core.Services.Users
 
         public async Task<int> UpdateBlockedUserAsync(BlockedUser blockedUser)
         {
+            blockedUser.UpdatedOn = DateTime.Now;
             return await _blockedUserRepository.UpdateAsync(blockedUser);
         }
         #endregion

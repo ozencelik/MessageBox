@@ -52,6 +52,12 @@ namespace MessageBox.Api.Controllers
             if (model is null)
                 return BadRequest("Model cannot be null.");
 
+            if (string.IsNullOrEmpty(model.BlockedUserName))
+                return BadRequest("BlockedUserName cannot be null.");
+
+            if (string.Equals(model.BlockedUserName, blockingUser.Username))
+                return BadRequest("You cannot block yourself.");
+
             var blockedUser = await _userService.GetUserByUsernameAsync(model.BlockedUserName);
 
             if (blockedUser is null)
