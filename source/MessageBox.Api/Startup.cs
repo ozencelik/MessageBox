@@ -81,16 +81,8 @@ namespace MessageBox
                 {
                     OnTokenValidated = async context =>
                     {
-                        //temporary
-
-                        var logService = context.HttpContext.RequestServices.GetRequiredService<ILogService>();
-
-                        //temporary
-
-
                         var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                         var userId = int.Parse(context.Principal.Identity.Name);
-                        //logService.InsertLogAsync(new Log() { LogType = LogType.Debug, UserId = 0, Title = "Jwt Hatası-userId", Message = $"{userId}" });
                         var user = await userService.GetUserByIdAsync(userId);
                         if (user == null)
                         {
