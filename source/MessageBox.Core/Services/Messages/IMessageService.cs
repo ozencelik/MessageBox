@@ -1,4 +1,5 @@
 ﻿using MessageBox.Data.Entities;
+using MessageBox.Data.Models.Pagers;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -45,6 +46,34 @@ namespace MessageBox.Core.Services.Messages
         /// <param name="userId">User id</param>
         /// <returns>Messages</returns>
         Task<IList<Message>> GetAllUnreadMessagesByReceiverUserIdAsync(int userId);
+
+        /// <summary>
+        /// Gets all messages by sender and receiver user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllMessagesByUserIdWithPaginationAsync(int userId, PaginationFilter filter);
+
+        /// <summary>
+        /// Gets all messages by sender user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllMessagesBySenderUserIdWithPaginationAsync(int userId, PaginationFilter filter);
+
+        /// <summary>
+        /// Gets all messages by receiver user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllMessagesByReceiverUserIdWithPaginationAsync(int userId, PaginationFilter filter);
+
+        /// <summary>
+        /// Gets all messages by receiver user
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>Messages</returns>
+        Task<IList<Message>> GetAllUnreadMessagesByReceiverUserIdWithPaginationAsync(int userId, PaginationFilter filter);
 
         /// <summary>
         /// Gets a message

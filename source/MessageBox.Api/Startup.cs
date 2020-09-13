@@ -18,6 +18,8 @@ using MessageBox.Data.Entities;
 using MessageBox.Data.Enums;
 using MessageBox.Core.Services.Logs;
 using MessageBox.Data;
+using MessageBox.Core.Services.Uris;
+using Microsoft.AspNetCore.Http;
 
 namespace MessageBox
 {
@@ -52,6 +54,17 @@ namespace MessageBox
             //Add Db Connection
             string connectionString = Configuration.GetConnectionString("Mysql-Dev");
             services.AddDbContext(connectionString);
+
+            #region Uri Service
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IUriService>(o =>
+            {
+                var accessor = o.GetRequiredService<IHttpContextAccessor>();
+                var request = accessor.HttpContext.Request;
+                var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                return new UriService(uri);
+            });
+            #endregion
 
             #region JWT
             //Add Jwt Token

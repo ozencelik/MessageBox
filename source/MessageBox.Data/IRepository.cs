@@ -1,4 +1,5 @@
 ﻿using MessageBox.Data.BaseEntities;
+using MessageBox.Data.Models.Pagers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,22 +14,19 @@ namespace MessageBox.Data
     /// <typeparam name="T">Entity type</typeparam>
     public partial interface IRepository<T> where T : BaseEntity
     {
-        #region Properties
-
-        /// <summary>
-        /// Gets a table
-        /// </summary>
-        IQueryable<T> Table { get; }
-
-        #endregion
-
         #region Methods
         /// <summary>
-        /// Get entity by identifier
+        /// Get all entities
         /// </summary>
-        /// <param name="id">Identifier</param>
         /// <returns>Entity</returns>
         Task<IList<T>> GetAllAsync();
+
+        /// <summary>
+        /// Get all entities
+        /// </summary>
+        /// <param name="filter">Pagination filter</param>
+        /// <returns>Entity</returns>
+        Task<IList<T>> GetAllWithPaginationAsync(PaginationFilter filter);
 
         /// <summary>
         /// Get entity by identifier
@@ -54,6 +52,18 @@ namespace MessageBox.Data
         /// </summary>
         /// <param name="entity">Entity</param>
         Task<int> DeleteAsync(T entity);
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// Gets a table
+        /// </summary>
+        IQueryable<T> Table { get; }
+
+        /// <summary>
+        /// Gets a table with pagination
+        /// </summary>
+        IQueryable<T> TableWithPagination(PaginationFilter filter);
         #endregion
     }
 }

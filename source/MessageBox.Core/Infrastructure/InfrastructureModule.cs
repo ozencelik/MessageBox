@@ -39,7 +39,7 @@ namespace MessageBox.Core.Infrastructure
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ActivityLogService>().As<IActivityLogService>()
-                .InstancePerLifetimeScope();           
+                .InstancePerLifetimeScope();
         }
 
         private void RegisterDevelopmentOnlyDependencies(ContainerBuilder builder)

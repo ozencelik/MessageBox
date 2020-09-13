@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using MessageBox.Api.Configuration;
 using MessageBox.Core.Infrastructure;
 using MessageBox.Core.Services.Logs;
 using MessageBox.Core.Services.Messages;
+using MessageBox.Core.Services.Uris;
 using MessageBox.Core.Services.Users;
 using MessageBox.Data.Entities;
 using MessageBox.Data.Models;
+using MessageBox.Data.Models.Pagers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +31,7 @@ namespace MessageBox.Api.Controllers
         private readonly IUserService _userService;
         private readonly IBlockedUserService _blockedUserService;
         private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
         #endregion
 
         #region Ctor
@@ -36,7 +40,8 @@ namespace MessageBox.Api.Controllers
             IMessageService messageService,
             IUserService userService,
             IBlockedUserService blockedUserService,
-            IMapper mapper)
+            IMapper mapper,
+            IUriService uriService)
         {
             this._activityLogService = activityLogService;
             this._logService = logService;
@@ -44,6 +49,7 @@ namespace MessageBox.Api.Controllers
             this._userService = userService;
             this._blockedUserService = blockedUserService;
             this._mapper = mapper;
+            this._uriService = uriService;
         }
         #endregion
 
@@ -117,7 +123,7 @@ namespace MessageBox.Api.Controllers
         }
 
         [HttpGet(ApiRoutes.Messages.GetAll)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PaginationFilter filter)
         {
             var currentUser = await GetCurrentUserAsync();
 
@@ -125,15 +131,25 @@ namespace MessageBox.Api.Controllers
                 || currentUser is default(User))
                 return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
 
+            var route = Request.Path.Value;
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
             // Authorized users can only get their messages.
             // They cannot acces someone's messages.
-            var messages = await _messageService.GetAllMessagesByUserIdAsync(currentUser.Id);
+            var pagedData = await _messageService.GetAllMessagesByUserIdWithPaginationAsync(currentUser.Id, validFilter);
 
-            return Ok(await PrepareMessageModelAsync(messages));
+            if (pagedData is null
+                || !pagedData.Any())
+                return Ok("No message found ✔");
+
+            var totalRecords = await _messageService.GetAllMessagesByUserIdAsync(currentUser.Id);
+            var pagedReponse = PaginationHelper.CreatePagedReponse(pagedData, validFilter, totalRecords.Count(), _uriService, route);
+
+            return Ok(pagedReponse);
         }
 
         [HttpGet(ApiRoutes.Messages.GetAllUnRead)]
-        public async Task<IActionResult> GetAllUnReadMessage()
+        public async Task<IActionResult> GetAllUnReadMessage([FromQuery] PaginationFilter filter)
         {
             var currentUser = await GetCurrentUserAsync();
 
@@ -141,17 +157,21 @@ namespace MessageBox.Api.Controllers
                 || currentUser is default(User))
                 return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
 
+            var route = Request.Path.Value;
+            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+
             // Authorized users can only get their messages.
             // They cannot acces someone's messages.
-            var messages = await _messageService.GetAllUnreadMessagesByReceiverUserIdAsync(currentUser.Id);
+            var pagedData = await _messageService.GetAllUnreadMessagesByReceiverUserIdWithPaginationAsync(currentUser.Id, validFilter);
 
-            var unreadMessages = await PrepareMessageModelAsync(messages);
-
-            if (unreadMessages is null
-                || !unreadMessages.Any()) 
+            if (pagedData is null
+                || !pagedData.Any()) 
                 return Ok("No unread message found ✔");
 
-            return Ok(unreadMessages);
+            var totalRecords = await _messageService.GetAllMessagesByUserIdAsync(currentUser.Id);
+            var pagedReponse = PaginationHelper.CreatePagedReponse(pagedData, validFilter, totalRecords.Count(), _uriService, route);
+
+            return Ok(pagedReponse);
         }
 
         [HttpPost(ApiRoutes.Messages.Send)]
@@ -324,7 +344,7 @@ namespace MessageBox.Api.Controllers
 
             foreach (var message in messages)
             {
-                SetDeliveredAndReadTimeForMessageAsync(currentUser.Id, message);
+                //SetDeliveredAndReadTimeForMessageAsync(currentUser.Id, message);
                 result.Add(new MessageModel()
                 {
                     Id = message.Id,

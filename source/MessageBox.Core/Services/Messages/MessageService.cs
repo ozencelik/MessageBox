@@ -1,5 +1,6 @@
 ﻿using MessageBox.Data;
 using MessageBox.Data.Entities;
+using MessageBox.Data.Models.Pagers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -61,6 +62,41 @@ namespace MessageBox.Core.Services.Messages
         public async Task<IList<Message>> GetAllUnreadMessagesByReceiverUserIdAsync(int userId)
         {
             return await _messageRepository.Table
+                .Where(m => m.Active
+                && !m.Deleted
+                && m.ReceiverUserId == userId
+                && !m.Blocked
+                && m.ReadOn == default)?.ToListAsync();
+        }
+
+        public async Task<IList<Message>> GetAllMessagesByUserIdWithPaginationAsync(int userId, PaginationFilter filter)
+        {
+            return await _messageRepository.TableWithPagination(filter)
+                .Where(m => m.Active
+                && !m.Deleted
+                && (m.SenderUserId == userId
+                || m.ReceiverUserId == userId))?.ToListAsync();
+        }
+
+        public async Task<IList<Message>> GetAllMessagesBySenderUserIdWithPaginationAsync(int userId, PaginationFilter filter)
+        {
+            return await _messageRepository.TableWithPagination(filter)
+                .Where(m => m.Active
+                && !m.Deleted
+                && m.SenderUserId == userId)?.ToListAsync();
+        }
+
+        public async Task<IList<Message>> GetAllMessagesByReceiverUserIdWithPaginationAsync(int userId, PaginationFilter filter)
+        {
+            return await _messageRepository.TableWithPagination(filter)
+                .Where(m => m.Active
+                && !m.Deleted
+                && m.ReceiverUserId == userId)?.ToListAsync();
+        }
+
+        public async Task<IList<Message>> GetAllUnreadMessagesByReceiverUserIdWithPaginationAsync(int userId, PaginationFilter filter)
+        {
+            return await _messageRepository.TableWithPagination(filter)
                 .Where(m => m.Active
                 && !m.Deleted
                 && m.ReceiverUserId == userId
