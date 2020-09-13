@@ -5,6 +5,11 @@ namespace MessageBox.Data.Models
     public partial class MessageModel
     {
         /// <summary>
+        /// Message identifier
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Sender user name
         /// </summary>
         public string SenderUserName { get; set; }

@@ -1,13 +1,12 @@
-﻿using AutoMapper;
-using MessageBox.Core.Infrastructure;
+﻿using MessageBox.Core.Infrastructure;
 using MessageBox.Core.Services.Logs;
 using MessageBox.Core.Services.Users;
 using MessageBox.Data.Entities;
-using MessageBox.Data.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -17,30 +16,24 @@ namespace MessageBox.Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("[controller]")]
-    public class LogController : Controller
+    public class ActivityLogController : Controller
     {
         #region Fields
         private readonly IActivityLogService _activityLogService;
-        private readonly ILogService _logService;
-        private readonly IMapper _mapper;
         private readonly IUserService _userService;
         #endregion
 
         #region Ctor
-        public LogController(IActivityLogService activityLogService,
-            ILogService logService, 
-            IMapper mapper,
+        public ActivityLogController(IActivityLogService activityLogService,
             IUserService userService)
         {
             this._activityLogService = activityLogService;
-            this._logService = logService;
-            this._mapper = mapper;
             this._userService = userService;
         }
         #endregion
 
         #region Methods
-        [HttpGet(ApiRoutes.Logs.Get)]
+        [HttpGet(ApiRoutes.ActivityLogs.Get)]
         public async Task<IActionResult> GetById(int id)
         {
             var currentUser = await GetCurrentUserAsync();
@@ -52,11 +45,13 @@ namespace MessageBox.Api.Controllers
             if (id <= 0)
                 return BadRequest("Id value must be greater than zero.");
 
-            var log = await _logService.GetLogByIdAsync(id, currentUser.Id);
+            var log = await _activityLogService.GetActivityLogByIdAsync(id, currentUser.Id);
 
-            var model = _mapper.Map<LogModel>(log);
+            if (log is null
+                || log is default(ActivityLog))
+                return NotFound("ActivityLog not found.");
 
-            return Ok(model);
+            return Ok(log);
         }
 
         [HttpGet(ApiRoutes.Logs.GetAll)]
@@ -68,11 +63,13 @@ namespace MessageBox.Api.Controllers
                 || currentUser is default(User))
                 return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
 
-            var logs = await _logService.GetAllLogsAsync(currentUser.Id);
+            var logs = await _activityLogService.GetAllActivityLogsAsync(currentUser.Id);
 
-            var model = _mapper.Map<IList<LogModel>>(logs);
+            if (logs is null
+                || logs is default(IList<ActivityLog>))
+                return NotFound("No activity logs found.");
 
-            return Ok(model);
+            return Ok(logs);
         }
         #endregion
 

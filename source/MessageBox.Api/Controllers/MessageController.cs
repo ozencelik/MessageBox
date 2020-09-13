@@ -1,4 +1,5 @@
-﻿using MessageBox.Core.Infrastructure;
+﻿using AutoMapper;
+using MessageBox.Core.Infrastructure;
 using MessageBox.Core.Services.Logs;
 using MessageBox.Core.Services.Messages;
 using MessageBox.Core.Services.Users;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -26,6 +28,7 @@ namespace MessageBox.Api.Controllers
         private readonly IMessageService _messageService;
         private readonly IUserService _userService;
         private readonly IBlockedUserService _blockedUserService;
+        private readonly IMapper _mapper;
         #endregion
 
         #region Ctor
@@ -33,19 +36,41 @@ namespace MessageBox.Api.Controllers
             ILogService logService, 
             IMessageService messageService,
             IUserService userService,
-            IBlockedUserService blockedUserService)
+            IBlockedUserService blockedUserService,
+            IMapper mapper)
         {
             this._activityLogService = activityLogService;
             this._logService = logService;
             this._messageService = messageService;
             this._userService = userService;
             this._blockedUserService = blockedUserService;
+            this._mapper = mapper;
         }
         #endregion
 
         #region Methods
+        [HttpDelete(ApiRoutes.Messages.Delete)]
+        public async Task<IActionResult> Delete(int messageId)
+        {
+            var currentUser = await GetCurrentUserAsync();
+
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
+
+            var message = await _messageService.GetMessageBySenderUserIdAsync(messageId, currentUser.Id);
+
+            if (message is null
+                || message is default(Message))
+                return NotFound("No message found by sent from you.");
+
+            await _messageService.DeleteMessageAsync(message);
+
+            return Ok("Message deleted ✔");
+        }
+
         [HttpGet(ApiRoutes.Messages.Get)]
-        public async Task<IActionResult> GetById(int messageId)
+        public async Task<IActionResult> GetById(int messageId) 
         {
             var currentUser = await GetCurrentUserAsync();
 
@@ -65,6 +90,7 @@ namespace MessageBox.Api.Controllers
             if (message.SenderUserId == currentUser.Id)
                 return Ok(new MessageModel()
                 {
+                    Id = message.Id,
                     SenderUserName = currentUser.Username,
                     ReceiverUserName = await _userService.GetUsernameByUserIdAsync(message.ReceiverUserId),
                     Content = message.Content,
@@ -79,6 +105,7 @@ namespace MessageBox.Api.Controllers
                 SetDeliveredAndReadTimeForMessageAsync(currentUser.Id, message);
                 return Ok(new MessageModel()
                 {
+                    Id = message.Id,
                     SenderUserName = await _userService.GetUsernameByUserIdAsync(message.SenderUserId),
                     ReceiverUserName = currentUser.Username,
                     Content = message.Content,
@@ -209,6 +236,43 @@ namespace MessageBox.Api.Controllers
             // If blocked, we show a user friendly message to current user.
             return Ok("Message received  ✔\nThis message will not be showed to the receiver. Because you are blocked by the receiver user.");
         }
+
+        [HttpPut(ApiRoutes.Messages.Update)]
+        public async Task<IActionResult> Update(int messageId, [FromBody] UpdateMessageModel model)
+        {
+            var currentUser = await GetCurrentUserAsync();
+
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
+
+            if (messageId < 0)
+                return BadRequest("Message id must bigger than zero.");
+            
+            if (model is null)
+                return BadRequest("Model is required.");
+
+            var message = await _messageService.GetMessageBySenderUserIdAsync(messageId, currentUser.Id);
+
+            if (message is null
+                || message is default(Message))
+                return NotFound("No message found.");
+
+            try
+            {
+                //map model to message entity
+                message = _mapper.Map<Message>(model);
+
+                // update message 
+                await _messageService.UpdateMessageAsync(message);
+                return Ok("Message updated ✔");
+            }
+            catch (Exception ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(ex.Message);
+            }
+        }
         #endregion
 
         #region Private Helper Methods
@@ -264,6 +328,7 @@ namespace MessageBox.Api.Controllers
                 SetDeliveredAndReadTimeForMessageAsync(currentUser.Id, message);
                 result.Add(new MessageModel()
                 {
+                    Id = message.Id,
                     SenderUserName = currentUser.Id == message.SenderUserId ? currentUser.Username
                                                                             : await _userService.GetUsernameByUserIdAsync(message.SenderUserId),
                     ReceiverUserName = currentUser.Id == message.ReceiverUserId ? currentUser.Username 

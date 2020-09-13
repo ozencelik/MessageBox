@@ -15,10 +15,17 @@ namespace MessageBox.Core.Services.Logs
         Task<int> DeleteLogAsync(Log log);
 
         /// <summary>
-        /// Gets all categories
+        /// Gets all logs
         /// </summary>
-        /// <returns>Categories</returns>
+        /// <returns>Logs</returns>
         Task<IList<Log>> GetAllLogsAsync();
+
+        /// <summary>
+        /// Gets all logs by user
+        /// </summary>
+        /// <param name="userId">User identifier</param>
+        /// <returns>Logs</returns>
+        Task<IList<Log>> GetAllLogsAsync(int userId);
 
         /// <summary>
         /// Gets a log
@@ -26,6 +33,14 @@ namespace MessageBox.Core.Services.Logs
         /// <param name="logId">Log identifier</param>
         /// <returns>Log</returns>
         Task<Log> GetLogByIdAsync(int logId);
+
+        /// <summary>
+        /// Gets a log
+        /// </summary>
+        /// <param name="logId">Log identifier</param>
+        /// <param name="userId">User identifier</param>
+        /// <returns>Log</returns>
+        Task<Log> GetLogByIdAsync(int logId, int userId);
 
         /// <summary>
         /// Insert a debug log

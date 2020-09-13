@@ -82,12 +82,29 @@ namespace MessageBox.Core.Services.Users
         {
             return await _blockedUserRepository.GetAllAsync();
         }
+        
+        public async Task<IList<BlockedUser>> GetAllBlockedUsersAsync(int blockingUserId)
+        {
+            return await _blockedUserRepository.Table
+                .Where(b => b.BlockingUserId == blockingUserId)?.ToListAsync();
+        }
 
         public async Task<BlockedUser> GetBlockedUserByIdAsync(int blockedUserId)
         {
             return await _blockedUserRepository.GetByIdAsync(blockedUserId);
         }
 
+        public async Task<BlockedUser> GetBlockedUserByBlockingUserIdAsync(int blockedUserId, int blockingUserId)
+        {
+            if (blockingUserId < 0)
+                return default;
+
+            return await _blockedUserRepository.Table
+                .Where(b => b.BlockedUserId == blockedUserId
+                && b.BlockingUserId == blockingUserId
+                && !b.Deleted)?.FirstOrDefaultAsync();
+        }
+        
         public async Task<IList<BlockedUser>> GetBlockedUsersByBlockingUserIdAsync(int userId)
         {
             if (userId < 0)

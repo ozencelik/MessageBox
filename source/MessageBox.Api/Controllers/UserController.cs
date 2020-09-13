@@ -48,25 +48,30 @@ namespace MessageBox.Api.Controllers
         #endregion
 
         #region Methods
-        [HttpGet(ApiRoutes.Users.Get)]
-        public async Task<IActionResult> GetById(int userId)
+        [HttpDelete(ApiRoutes.Users.Delete)]
+        public async Task<IActionResult> Delete()
         {
-            if (userId <= 0)
-                return BadRequest("Id value must be greater than zero.");
+            var currentUser = await GetCurrentUserAsync();
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
 
-            var model = _mapper.Map<UserModel>(user);
+            await _userService.DeleteUserAsync(currentUser);
 
-            return Ok(model);
+            return Ok("User deleted ✔");
         }
 
-        [HttpGet(ApiRoutes.Users.GetAll)]
-        public async Task<IActionResult> GetAll()
+        [HttpGet(ApiRoutes.Users.Get)]
+        public async Task<IActionResult> Get()
         {
-            var users = await _userService.GetAllUsersAsync();
+            var currentUser = await GetCurrentUserAsync();
 
-            var model = _mapper.Map<IList<UserModel>>(users);
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
+
+            var model = _mapper.Map<UserModel>(currentUser);
 
             return Ok(model);
         }
@@ -202,35 +207,54 @@ namespace MessageBox.Api.Controllers
         }
 
         [HttpPut(ApiRoutes.Users.Update)]
-        public async Task<IActionResult> Update(int userId, [FromBody] UpdateModel model)
+        public async Task<IActionResult> Update([FromBody] UpdateModel model)
         {
-            if (userId <= 0)
-                return BadRequest("Id value must be greater than zero.");
+            var currentUser = await GetCurrentUserAsync();
+
+            if (currentUser is null
+                || currentUser is default(User))
+                return Unauthorized("No authorized user found.\nPlease log in by using your credentials.");
 
             if (model is null)
                 return BadRequest("Model is required.");
 
-            // check the user is exist
-            var user = await _userService.GetUserByIdAsync(userId);
-
-            if (user is null)
-                return NotFound("User not found.");
-
             try
             {
                 //map model to user entity
-                user = _mapper.Map<User>(model);
-                user.Id = userId;
+                currentUser = _mapper.Map<User>(model);
 
                 // update user 
-                await _userService.UpdateUserAsync(user, model.Password);
+                await _userService.UpdateUserAsync(currentUser, model.Password);
                 return Ok("User updated ✔");
             }
             catch (Exception ex)
             {
                 // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(ex.Message);
             }
+        }
+        #endregion
+
+        #region Private Helper Methods
+        private int GetCurrentUserId()
+        {
+            var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return default;
+
+            Int32.TryParse(userId, out int result);
+            return result;
+        }
+
+        private async Task<User> GetCurrentUserAsync()
+        {
+            var currentUserId = GetCurrentUserId();
+
+            if (currentUserId is 0)
+                return default;
+
+            return await _userService.GetUserByIdAsync(currentUserId);
         }
         #endregion
     }

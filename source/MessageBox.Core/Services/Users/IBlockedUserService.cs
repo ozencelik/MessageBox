@@ -36,11 +36,26 @@ namespace MessageBox.Core.Services.Users
         Task<IList<BlockedUser>> GetAllBlockedUsersAsync();
 
         /// <summary>
+        /// Gets all categories
+        /// </summary>
+        /// <param name="blockingUserId">Blocking User</param>
+        /// <returns>Categories</returns>
+        Task<IList<BlockedUser>> GetAllBlockedUsersAsync(int blockingUserId);
+
+        /// <summary>
         /// Gets a blockedUser
         /// </summary>
         /// <param name="blockedUserId">BlockedUser identifier</param>
         /// <returns>BlockedUser</returns>
         Task<BlockedUser> GetBlockedUserByIdAsync(int blockedUserId);
+
+        /// <summary>
+        /// Get blockedUsers
+        /// </summary>
+        /// <param name="blockedUserId">BlockedUser identifier</param>
+        /// <param name="blockingUserId">BlockedUser identifier</param>
+        /// <returns>BlockedUser</returns>
+        Task<BlockedUser> GetBlockedUserByBlockingUserIdAsync(int blockedUserId, int blockingUserId);
 
         /// <summary>
         /// Get blockedUsers

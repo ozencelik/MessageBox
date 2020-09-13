@@ -72,6 +72,12 @@ namespace MessageBox.Core.Services.Messages
         {
             return await _messageRepository.GetByIdAsync(messageId);
         }
+        
+        public async Task<Message> GetMessageBySenderUserIdAsync(int messageId, int userId)
+        {
+            return await _messageRepository.Table
+                .Where(m => m.Id == messageId && m.SenderUserId == userId)?.FirstOrDefaultAsync();
+        }
 
         public async Task<int> InsertMessageAsync(Message message)
         {

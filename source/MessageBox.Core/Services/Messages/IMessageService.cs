@@ -54,6 +54,14 @@ namespace MessageBox.Core.Services.Messages
         Task<Message> GetMessageByIdAsync(int messageId);
 
         /// <summary>
+        /// Gets a message
+        /// </summary>
+        /// <param name="messageId">Message identifier</param>
+        /// <param name="userId">User identifier</param>
+        /// <returns>Message</returns>
+        Task<Message> GetMessageBySenderUserIdAsync(int messageId, int userId);
+
+        /// <summary>
         /// Inserts message
         /// </summary>
         /// <param name="message">Message</param>

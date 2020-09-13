@@ -13,10 +13,17 @@ namespace MessageBox.Core.Services.Logs
         Task<int> DeleteActivityLogAsync(ActivityLog activityLog);
 
         /// <summary>
-        /// Gets all categories
+        /// Gets all activity logs
         /// </summary>
         /// <returns>Categories</returns>
         Task<IList<ActivityLog>> GetAllActivityLogsAsync();
+
+        /// <summary>
+        /// Gets all activity logs
+        /// </summary>
+        /// <param name="userId">User identifier</param>
+        /// <returns>Categories</returns>
+        Task<IList<ActivityLog>> GetAllActivityLogsAsync(int userId);
 
         /// <summary>
         /// Gets a activityLog
@@ -24,6 +31,14 @@ namespace MessageBox.Core.Services.Logs
         /// <param name="activityLogId">ActivityLog identifier</param>
         /// <returns>ActivityLog</returns>
         Task<ActivityLog> GetActivityLogByIdAsync(int activityLogId);
+
+        /// <summary>
+        /// Gets a activityLog
+        /// </summary>
+        /// <param name="activityLogId">ActivityLog identifier</param>
+        /// <param name="userId">User identifier</param>
+        /// <returns>ActivityLog</returns>
+        Task<ActivityLog> GetActivityLogByIdAsync(int activityLogId, int userId);
 
         /// <summary>
         /// Insert a blocked user activityLog

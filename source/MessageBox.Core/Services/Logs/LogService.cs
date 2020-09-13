@@ -2,8 +2,10 @@
 using MessageBox.Data.Entities;
 using MessageBox.Data.Enums;
 using MessageBox.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MessageBox.Core.Services.Logs
@@ -32,10 +34,22 @@ namespace MessageBox.Core.Services.Logs
         {
             return await _logRepository.GetAllAsync();
         }
+        
+        public async Task<IList<Log>> GetAllLogsAsync(int userId)
+        {
+            return await _logRepository.Table
+                .Where(u => u.UserId == userId)?.ToListAsync();
+        }
 
         public async Task<Log> GetLogByIdAsync(int logId)
         {
             return await _logRepository.GetByIdAsync(logId);
+        }
+        
+        public async Task<Log> GetLogByIdAsync(int logId, int userId)
+        {
+            return await _logRepository.Table
+                .Where(u => u.Id == logId && u.UserId == userId)?.FirstOrDefaultAsync();
         }
 
         public async Task<int> LogDebugAsync(CreateLogModel model)
