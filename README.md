@@ -27,18 +27,18 @@ In addition, you can use the API from [MessageBox](https://messagebox-armut.hero
 ## Authorization
 Firstly, you should create an account by using register endpoint, after that log in by using your credentials.
 
-![auth1](images/Auth-1?raw=true "Title")
+![Image-1](https://prnt.sc/ugl1nh)
 
-![auth2](images/Auth-2?raw=true "Title")
+![Image-2](https://prnt.sc/ugl1pb)
 
 Download the result and get the token to authorize.
 
-![auth3](images/Auth-3?raw=true "Title")
+![Image-3](https://prnt.sc/ugl1rq)
 
-![auth4](images/Auth-4?raw=true "Title")
+![Image-4](https://prnt.sc/ugl1ts)
 
 Please make sure that you should follow the format for authorization by using Bearer.
 
-![auth5](images/Auth-5?raw=true "Title")
+![Image-5](https://prnt.sc/ugl1v7)
 
 ## Made with ❤ in İstanbul by Özenç Çelik
